@@ -273,103 +273,115 @@
   </nav>
 
   <script type="module">
-    import { routeTo, openTemplates } from "./v3/router.js";
-    import { getSettings } from "./v3/store.js";
+  // 🔥 Show any JS/module errors directly on screen (so we can fix in 1 shot)
+  window.addEventListener("error", (e) => {
+    const el = document.createElement("div");
+    el.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,.92);color:#fff;z-index:9999;padding:16px;font-family:-apple-system;overflow:auto;";
+    el.innerHTML = `<h2 style="margin:0 0 10px;">Ritual Error</h2><pre style="white-space:pre-wrap;">${(e.error && e.error.stack) ? e.error.stack : e.message}</pre>`;
+    document.body.appendChild(el);
+  });
 
-    // --- Navigation engine (same behavior you already had) ---
-    const pages = ["today","calendar","score","settings"];
-    let idx = 0;
+  window.addEventListener("unhandledrejection", (e) => {
+    const el = document.createElement("div");
+    el.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,.92);color:#fff;z-index:9999;padding:16px;font-family:-apple-system;overflow:auto;";
+    el.innerHTML = `<h2 style="margin:0 0 10px;">Ritual Promise Error</h2><pre style="white-space:pre-wrap;">${(e.reason && e.reason.stack) ? e.reason.stack : String(e.reason)}</pre>`;
+    document.body.appendChild(el);
+  });
 
-    const pager = document.getElementById("pager");
-    const topTitle = document.getElementById("topTitle");
-    const topSub = document.getElementById("topSub");
+  import { routeTo } from "./v3/router.js";
+  import { getSettings } from "./v3/store.js";
 
-    const roots = {
-      today: document.getElementById("screenToday"),
-      calendar: document.getElementById("screenCalendar"),
-      score: document.getElementById("screenScore"),
-      settings: document.getElementById("screenSettings"),
-    };
+  const pages = ["today","calendar","score","settings"];
+  let idx = 0;
 
-    function setHeader(name){
-      topTitle.textContent =
-        name==="today" ? "Today" :
-        name==="calendar" ? "Calendar" :
-        name==="score" ? "Score" : "Settings";
-      topSub.textContent = "Ritual • V3";
-    }
+  const pager = document.getElementById("pager");
+  const topTitle = document.getElementById("topTitle");
+  const topSub = document.getElementById("topSub");
 
-    function setActive(name){
-      document.querySelectorAll(".tab").forEach(t=>{
-        t.classList.toggle("active", t.dataset.tab === name);
-      });
-      setHeader(name);
-    }
+  const roots = {
+    today: document.getElementById("screenToday"),
+    calendar: document.getElementById("screenCalendar"),
+    score: document.getElementById("screenScore"),
+    settings: document.getElementById("screenSettings"),
+  };
 
-    async function renderPage(name){
-      await routeTo(name, roots[name]);
-    }
+  function setHeader(name){
+    topTitle.textContent =
+      name==="today" ? "Today" :
+      name==="calendar" ? "Calendar" :
+      name==="score" ? "Score" : "Settings";
+    topSub.textContent = "Ritual • V3";
+  }
 
-    async function goTo(i, smooth=true){
-      idx = Math.max(0, Math.min(pages.length-1, i));
-      const name = pages[idx];
-      pager.scrollTo({ left: idx * pager.clientWidth, behavior: smooth ? "smooth" : "auto" });
-      setActive(name);
-      await renderPage(name);
-    }
-
-    // Tabs click
-    document.querySelectorAll(".tab").forEach(btn=>{
-      btn.addEventListener("click", ()=>goTo(pages.indexOf(btn.dataset.tab)));
+  function setActive(name){
+    document.querySelectorAll(".tab").forEach(t=>{
+      t.classList.toggle("active", t.dataset.tab === name);
     });
+    setHeader(name);
+  }
 
-    // Swipe between tabs
-    let startX=0, startY=0, active=false;
-    const EDGE=20, SWIPE=60, VERT=12;
+  async function renderPage(name){
+    await routeTo(name, roots[name]);
+  }
 
-    pager.addEventListener("touchstart",(e)=>{
-      if(!e.touches || e.touches.length!==1) return;
-      const t=e.touches[0];
-      if(t.clientX < EDGE || t.clientX > window.innerWidth-EDGE){ active=false; return; }
-      startX=t.clientX; startY=t.clientY; active=true;
-    },{passive:true});
+  async function goTo(i, smooth=true){
+    idx = Math.max(0, Math.min(pages.length-1, i));
+    const name = pages[idx];
+    pager.scrollTo({ left: idx * pager.clientWidth, behavior: smooth ? "smooth" : "auto" });
+    setActive(name);
+    await renderPage(name);
+  }
 
-    pager.addEventListener("touchmove",(e)=>{
-      if(!active || !e.touches || e.touches.length!==1) return;
-      const t=e.touches[0];
-      if(Math.abs(t.clientY-startY) > VERT) active=false;
-    },{passive:true});
+  document.querySelectorAll(".tab").forEach(btn=>{
+    btn.addEventListener("click", ()=>goTo(pages.indexOf(btn.dataset.tab)));
+  });
 
-    pager.addEventListener("touchend",(e)=>{
-      if(!active) return;
-      active=false;
-      const t=e.changedTouches && e.changedTouches[0];
-      if(!t) return;
-      const dx=t.clientX-startX;
-      if(Math.abs(dx) < SWIPE) return;
-      if(dx < 0 && idx < pages.length-1) goTo(idx+1);
-      if(dx > 0 && idx > 0) goTo(idx-1);
-    },{passive:true});
+  // Swipe between tabs
+  let startX=0, startY=0, active=false;
+  const EDGE=20, SWIPE=60, VERT=12;
 
-    window.addEventListener("resize", ()=>goTo(idx,false));
+  pager.addEventListener("touchstart",(e)=>{
+    if(!e.touches || e.touches.length!==1) return;
+    const t=e.touches[0];
+    if(t.clientX < EDGE || t.clientX > window.innerWidth-EDGE){ active=false; return; }
+    startX=t.clientX; startY=t.clientY; active=true;
+  },{passive:true});
 
-    // Apply saved theme accent at startup
-    (async () => {
-      const s = await getSettings();
-      const map = {
-        ember: "#ff7a18",
-        blue: "#3b82f6",
-        purple: "#a855f7",
-        green: "#22c55e",
-        orange: "#f59e0b",
-        red: "#ef4444",
-        pink: "#ec4899"
-      };
-      document.documentElement.style.setProperty("--accent", map[s.themeId] || map.ember);
-    })();
+  pager.addEventListener("touchmove",(e)=>{
+    if(!active || !e.touches || e.touches.length!==1) return;
+    const t=e.touches[0];
+    if(Math.abs(t.clientY-startY) > VERT) active=false;
+  },{passive:true});
 
-    // Initial render
-    goTo(0,false);
-  </script>
+  pager.addEventListener("touchend",(e)=>{
+    if(!active) return;
+    active=false;
+    const t=e.changedTouches && e.changedTouches[0];
+    if(!t) return;
+    const dx=t.clientX-startX;
+    if(Math.abs(dx) < SWIPE) return;
+    if(dx < 0 && idx < pages.length-1) goTo(idx+1);
+    if(dx > 0 && idx > 0) goTo(idx-1);
+  },{passive:true});
+
+  window.addEventListener("resize", ()=>goTo(idx,false));
+
+  // Apply saved theme accent at startup
+  (async () => {
+    const s = await getSettings();
+    const map = {
+      ember: "#ff7a18",
+      blue: "#3b82f6",
+      purple: "#a855f7",
+      green: "#22c55e",
+      orange: "#f59e0b",
+      red: "#ef4444",
+      pink: "#ec4899"
+    };
+    document.documentElement.style.setProperty("--accent", map[s.themeId] || map.ember);
+  })();
+
+  goTo(0,false);
+</script>
 </body>
 </html>
