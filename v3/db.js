@@ -1,6 +1,12 @@
 // Ritual V3 — db.js (canonical)
 // Exports: DB, idbGet, idbPut, idbDelete, idbGetAll, idbGetAllByIndex
 
+export const STORES_CONST = {
+  TASKS: "tasks",
+  SETTINGS: "settings",
+  TEMPLATES: "templates"
+};
+
 export const DB = {
   name: "ritual_v3",
   version: 1,
