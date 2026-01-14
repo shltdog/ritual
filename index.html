@@ -2,65 +2,208 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>Ritual</title>
 
   <style>
-    :root {
-      --bg: #0b0b0d;
-      --card: rgba(255,255,255,0.06);
-      --border: rgba(255,255,255,0.1);
-      --text: #ffffff;
-      --muted: rgba(255,255,255,0.6);
-      --accent: #ff7a18;
-      --radius: 16px;
+    :root{
+      --bg:#0b0b0d;
+      --card: rgba(255,255,255,.06);
+      --card2: rgba(255,255,255,.04);
+      --border: rgba(255,255,255,.10);
+      --text:#fff;
+      --muted: rgba(255,255,255,.65);
+      --accent:#ff7a18;
+      --radius:16px;
+      --pad:14px;
+      --safe-top: env(safe-area-inset-top);
+      --safe-bottom: env(safe-area-inset-bottom);
+    }
+    *{box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",system-ui,sans-serif;}
+    body{margin:0;background:var(--bg);color:var(--text);}
+    .app{
+      min-height:100vh;
+      padding: calc(var(--safe-top) + 10px) var(--pad) calc(var(--safe-bottom) + 86px);
+      max-width:420px;
+      margin:0 auto;
     }
 
-    * {
-      box-sizing: border-box;
-      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
+    /* Top */
+    .topbar{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:12px;}
+    .title{font-size:28px;font-weight:700;letter-spacing:.2px;}
+    .subtitle{font-size:12px;color:var(--muted);margin-top:4px;}
+    .iconbtn{
+      border:1px solid var(--border);
+      background:var(--card);
+      color:var(--text);
+      padding:10px 12px;
+      border-radius:12px;
+      font-size:18px;
     }
 
-    body {
-      margin: 0;
-      background: var(--bg);
-      color: var(--text);
+    /* Cards */
+    .card{
+      background:var(--card2);
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      padding:16px;
+      margin-bottom:10px;
     }
+    .muted{color:var(--muted);}
+    .h2{font-size:16px;font-weight:700;margin:0 0 6px;}
 
-    .app {
-      max-width: 420px;
-      margin: 0 auto;
-      min-height: 100vh;
-      padding: 16px;
+    /* Pager */
+    .pager{
+      display:flex;
+      overflow:hidden;
+      touch-action: pan-y; /* allow vertical scroll; we handle horizontal swipes */
     }
+    .page{min-width:100%;}
 
-    .header {
-      font-size: 28px;
-      font-weight: 600;
-      margin-bottom: 16px;
+    /* Tabs */
+    .tabs{
+      position:fixed;left:0;right:0;bottom:0;
+      padding:10px 12px calc(var(--safe-bottom) + 10px);
+      background: rgba(10,10,12,.92);
+      border-top:1px solid rgba(255,255,255,.08);
+      display:flex;
+      gap:10px;
     }
-
-    .card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 16px;
+    .tab{
+      flex:1;
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.03);
+      color: rgba(255,255,255,.65);
+      border-radius:14px;
+      padding:10px 0;
+      display:grid;
+      place-items:center;
+      gap:3px;
     }
-
-    .muted {
-      color: var(--muted);
+    .tab .icon{font-size:16px;}
+    .tab .lbl{font-size:11px;}
+    .tab.active{
+      color:var(--text);
+      border-color: color-mix(in oklab, var(--accent), #ffffff 25%);
+      background: color-mix(in oklab, var(--accent), transparent 86%);
     }
   </style>
 </head>
+
 <body>
-
   <div class="app">
-    <div class="header">Ritual</div>
+    <div class="topbar">
+      <div>
+        <div class="title" id="topTitle">Today</div>
+        <div class="subtitle" id="topSub">Ritual • V3 build</div>
+      </div>
+      <button class="iconbtn" id="moreBtn" aria-label="More">⋯</button>
+    </div>
 
-    <div class="card">
-      <p class="muted">Base shell loaded.</p>
+    <div class="pager" id="pager">
+      <section class="page" data-page="today">
+        <div class="card">
+          <div class="h2">Today</div>
+          <div class="muted">Next: tasks + import + recurring + long-press menu</div>
+        </div>
+      </section>
+
+      <section class="page" data-page="calendar">
+        <div class="card">
+          <div class="h2">Calendar</div>
+          <div class="muted">Next: month grid + day sheet</div>
+        </div>
+      </section>
+
+      <section class="page" data-page="score">
+        <div class="card">
+          <div class="h2">Score</div>
+          <div class="muted">Next: levels + progress + stats cards</div>
+        </div>
+      </section>
+
+      <section class="page" data-page="settings">
+        <div class="card">
+          <div class="h2">Settings</div>
+          <div class="muted">Next: theme picker + export backup + reminders note</div>
+        </div>
+      </section>
     </div>
   </div>
 
+  <nav class="tabs" aria-label="Tabs">
+    <button class="tab active" data-tab="today"><div class="icon">☀︎</div><div class="lbl">Today</div></button>
+    <button class="tab" data-tab="calendar"><div class="icon">📅</div><div class="lbl">Calendar</div></button>
+    <button class="tab" data-tab="score"><div class="icon">✦</div><div class="lbl">Score</div></button>
+    <button class="tab" data-tab="settings"><div class="icon">⚙︎</div><div class="lbl">Settings</div></button>
+  </nav>
+
+  <script>
+    const pages = ["today","calendar","score","settings"];
+    let idx = 0;
+
+    const pager = document.getElementById("pager");
+    const topTitle = document.getElementById("topTitle");
+    const topSub = document.getElementById("topSub");
+
+    function setHeader(i){
+      const name = pages[i];
+      topTitle.textContent =
+        name==="today" ? "Today" :
+        name==="calendar" ? "Calendar" :
+        name==="score" ? "Score" : "Settings";
+      topSub.textContent = "Ritual • V3 build";
+    }
+
+    function setActive(i){
+      document.querySelectorAll(".tab").forEach(t=>{
+        t.classList.toggle("active", t.dataset.tab === pages[i]);
+      });
+      setHeader(i);
+    }
+
+    function goTo(i, smooth=true){
+      idx = Math.max(0, Math.min(pages.length-1, i)); // NO LOOP
+      pager.scrollTo({ left: idx * pager.clientWidth, behavior: smooth ? "smooth" : "auto" });
+      setActive(idx);
+    }
+
+    // Tap tabs
+    document.querySelectorAll(".tab").forEach(btn=>{
+      btn.addEventListener("click", ()=>goTo(pages.indexOf(btn.dataset.tab)));
+    });
+
+    // Swipe between tabs (no loop)
+    let startX=0, startY=0, active=false;
+    const EDGE=20, SWIPE=60, VERT=12;
+
+    pager.addEventListener("touchstart",(e)=>{
+      if(!e.touches || e.touches.length!==1) return;
+      const t=e.touches[0];
+      if(t.clientX < EDGE || t.clientX > window.innerWidth-EDGE){ active=false; return; }
+      startX=t.clientX; startY=t.clientY; active=true;
+    },{passive:true});
+
+    pager.addEventListener("touchmove",(e)=>{
+      if(!active || !e.touches || e.touches.length!==1) return;
+      const t=e.touches[0];
+      if(Math.abs(t.clientY-startY) > VERT) active=false; // cancel on scroll
+    },{passive:true});
+
+    pager.addEventListener("touchend",(e)=>{
+      if(!active) return;
+      active=false;
+      const t=e.changedTouches && e.changedTouches[0];
+      if(!t) return;
+      const dx=t.clientX-startX;
+      if(Math.abs(dx) < SWIPE) return;
+
+      if(dx < 0 && idx < pages.length-1) goTo(idx+1);      // swipe left
+      if(dx > 0 && idx > 0) goTo(idx-1);                  // swipe right
+    },{passive:true});
+
+    window.addEventListener("resize", ()=>goTo(idx,false));
+    goTo(0,false);
+  </script>
 </body>
 </html>
