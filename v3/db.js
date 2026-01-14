@@ -1,36 +1,36 @@
-// Ritual V3 — IndexedDB helper (schemaVersion 3)
+// Ritual V3 — db.js (canonical)
+// Exports: DB, idbGet, idbPut, idbDelete, idbGetAll, idbGetAllByIndex
 
-const DB_NAME = "ritual_v3";
-const DB_VERSION = 1;
-
-const STORES = {
-  tasks: "tasks",
-  templates: "templates",
-  settings: "settings",
+export const DB = {
+  name: "ritual_v3",
+  version: 1,
+  stores: {
+    tasks: "tasks",
+    templates: "templates",
+    settings: "settings",
+  },
 };
 
 function openDB() {
   return new Promise((resolve, reject) => {
-    const req = indexedDB.open(DB_NAME, DB_VERSION);
+    const req = indexedDB.open(DB.name, DB.version);
 
-    req.onupgradeneeded = (event) => {
+    req.onupgradeneeded = () => {
       const db = req.result;
 
-      // Tasks store
-      if (!db.objectStoreNames.contains(STORES.tasks)) {
-        const s = db.createObjectStore(STORES.tasks, { keyPath: "id" });
+      if (!db.objectStoreNames.contains(DB.stores.tasks)) {
+        const s = db.createObjectStore(DB.stores.tasks, { keyPath: "id" });
         s.createIndex("dateKey", "dateKey", { unique: false });
         s.createIndex("updatedAt", "updatedAt", { unique: false });
       }
 
-      // Templates store (Phase C)
-      if (!db.objectStoreNames.contains(STORES.templates)) {
-        db.createObjectStore(STORES.templates, { keyPath: "id" });
+      if (!db.objectStoreNames.contains(DB.stores.templates)) {
+        const s = db.createObjectStore(DB.stores.templates, { keyPath: "id" });
+        s.createIndex("updatedAt", "updatedAt", { unique: false });
       }
 
-      // Settings store (single row with key="app")
-      if (!db.objectStoreNames.contains(STORES.settings)) {
-        db.createObjectStore(STORES.settings, { keyPath: "key" });
+      if (!db.objectStoreNames.contains(DB.stores.settings)) {
+        db.createObjectStore(DB.stores.settings, { keyPath: "key" });
       }
     };
 
@@ -39,49 +39,59 @@ function openDB() {
   });
 }
 
-function tx(db, storeName, mode = "readonly") {
-  return db.transaction(storeName, mode).objectStore(storeName);
-}
-
-export async function dbGet(storeName, key) {
+async function withStore(storeName, mode, fn) {
   const db = await openDB();
   return new Promise((resolve, reject) => {
-    const store = tx(db, storeName, "readonly");
-    const req = store.get(key);
-    req.onsuccess = () => resolve(req.result ?? null);
-    req.onerror = () => reject(req.error);
+    const tx = db.transaction(storeName, mode);
+    const store = tx.objectStore(storeName);
+
+    Promise.resolve(fn(store))
+      .then((result) => {
+        tx.oncomplete = () => resolve(result);
+        tx.onerror = () => reject(tx.error);
+        tx.onabort = () => reject(tx.error);
+      })
+      .catch(reject);
   });
 }
 
-export async function dbPut(storeName, value) {
-  const db = await openDB();
-  return new Promise((resolve, reject) => {
-    const store = tx(db, storeName, "readwrite");
-    const req = store.put(value);
-    req.onsuccess = () => resolve(true);
-    req.onerror = () => reject(req.error);
-  });
+export async function idbGet(storeName, key) {
+  return withStore(storeName, "readonly", (s) => new Promise((res, rej) => {
+    const req = s.get(key);
+    req.onsuccess = () => res(req.result ?? null);
+    req.onerror = () => rej(req.error);
+  }));
 }
 
-export async function dbDelete(storeName, key) {
-  const db = await openDB();
-  return new Promise((resolve, reject) => {
-    const store = tx(db, storeName, "readwrite");
-    const req = store.delete(key);
-    req.onsuccess = () => resolve(true);
-    req.onerror = () => reject(req.error);
-  });
+export async function idbPut(storeName, value) {
+  return withStore(storeName, "readwrite", (s) => new Promise((res, rej) => {
+    const req = s.put(value);
+    req.onsuccess = () => res(true);
+    req.onerror = () => rej(req.error);
+  }));
 }
 
-export async function dbGetAllByIndex(storeName, indexName, matchValue) {
-  const db = await openDB();
-  return new Promise((resolve, reject) => {
-    const store = tx(db, storeName, "readonly");
-    const idx = store.index(indexName);
+export async function idbDelete(storeName, key) {
+  return withStore(storeName, "readwrite", (s) => new Promise((res, rej) => {
+    const req = s.delete(key);
+    req.onsuccess = () => res(true);
+    req.onerror = () => rej(req.error);
+  }));
+}
+
+export async function idbGetAll(storeName) {
+  return withStore(storeName, "readonly", (s) => new Promise((res, rej) => {
+    const req = s.getAll();
+    req.onsuccess = () => res(req.result ?? []);
+    req.onerror = () => rej(req.error);
+  }));
+}
+
+export async function idbGetAllByIndex(storeName, indexName, matchValue) {
+  return withStore(storeName, "readonly", (s) => new Promise((res, rej) => {
+    const idx = s.index(indexName);
     const req = idx.getAll(matchValue);
-    req.onsuccess = () => resolve(req.result ?? []);
-    req.onerror = () => reject(req.error);
-  });
+    req.onsuccess = () => res(req.result ?? []);
+    req.onerror = () => rej(req.error);
+  }));
 }
-
-export const STORES_CONST = STORES;
