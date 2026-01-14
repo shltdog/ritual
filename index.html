@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <title>Ritual</title>
 
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 
@@ -17,6 +17,7 @@
       --card2:rgba(255,255,255,.04);
       --border:rgba(255,255,255,.10);
       --accent:#ff7a18;
+      --danger:#ef4444;
 
       --radius:16px;
       --pad:14px;
@@ -29,7 +30,6 @@
     *{ box-sizing:border-box; font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",system-ui,sans-serif; -webkit-tap-highlight-color: transparent; }
     html, body { height:100%; margin:0; background:var(--bg); color:var(--text); }
 
-    /* App */
     #app{
       min-height:100vh;
       max-width:420px;
@@ -38,7 +38,6 @@
       position:relative;
     }
 
-    /* subtle depth so it never feels empty */
     #app::before{
       content:"";
       position:fixed;
@@ -52,7 +51,6 @@
       z-index:-1;
     }
 
-    /* Top bar */
     .topbar{
       display:flex;
       justify-content:space-between;
@@ -80,13 +78,11 @@
       font-size:18px;
       line-height:1;
     }
-    .iconbtn:active{ transform:scale(.98); }
 
-    /* Pager + pages */
     .pager{
       display:flex;
       overflow:hidden;
-      touch-action: pan-y; /* vertical scroll allowed; we handle horizontal */
+      touch-action: pan-y;
       min-height: calc(100vh - (var(--safe-top) + 10px) - (var(--safe-bottom) + var(--tabs-h)) - 64px);
     }
     .page{
@@ -96,7 +92,6 @@
       gap:10px;
     }
 
-    /* Cards */
     .card{
       background:var(--card2);
       border:1px solid var(--border);
@@ -104,36 +99,57 @@
       padding:14px;
     }
     .card--hero{
-      background:
-        linear-gradient(180deg,
-          color-mix(in oklab, var(--accent), transparent 88%),
-          rgba(255,255,255,.03));
+      background: linear-gradient(180deg,
+        color-mix(in oklab, var(--accent), transparent 88%),
+        rgba(255,255,255,.03));
       border-color: color-mix(in oklab, var(--accent), #ffffff 18%);
     }
     .h2{ font-size:16px; font-weight:800; margin:0 0 6px; letter-spacing:.2px; }
     .muted{ color:var(--muted); }
     .small{ font-size:12px; }
-    .divider{
-      height:1px;
-      background: rgba(255,255,255,.08);
-      margin:10px 0;
-    }
-
+    .divider{ height:1px; background: rgba(255,255,255,.08); margin:10px 0; }
     .row{ display:flex; align-items:center; gap:10px; }
     .between{ justify-content:space-between; }
     .stack{ display:flex; flex-direction:column; gap:10px; }
     .grow{ flex:1; }
 
-    .pill{
+    .input{
       border:1px solid var(--border);
-      background: rgba(255,255,255,.03);
-      color:var(--muted);
-      padding:6px 10px;
-      border-radius:999px;
-      font-size:12px;
+      background:var(--card);
+      color:var(--text);
+      border-radius:12px;
+      padding:12px;
+      font-size:16px;
+      width:100%;
+    }
+    .btn{
+      border:1px solid var(--border);
+      background:var(--card);
+      color:var(--text);
+      border-radius:12px;
+      padding:12px 12px;
+      font-size:14px;
+      white-space:nowrap;
+    }
+    .btn--primary{
+      border-color: color-mix(in oklab, var(--accent), #ffffff 25%);
+      background: color-mix(in oklab, var(--accent), transparent 82%);
     }
 
-    /* Bottom tabs */
+    .progress{
+      height:10px;
+      border-radius:999px;
+      border:1px solid var(--border);
+      background: rgba(255,255,255,.03);
+      overflow:hidden;
+    }
+    .progress__bar{
+      height:100%;
+      background: var(--accent);
+      width:0%;
+    }
+
+    /* Tabs */
     .tabs{
       position:fixed;
       left:0; right:0; bottom:0;
@@ -166,10 +182,9 @@
       background: color-mix(in oklab, var(--accent), transparent 86%);
     }
 
-    /* Simple placeholders so it doesn't feel empty */
-    .ghost-list{ display:flex; flex-direction:column; gap:8px; }
-    .ghost-row{
-      border:1px solid rgba(255,255,255,.08);
+    /* Task rows */
+    .taskrow{
+      border:1px solid rgba(255,255,255,.10);
       background: rgba(255,255,255,.03);
       border-radius:14px;
       padding:12px;
@@ -177,12 +192,58 @@
       align-items:center;
       justify-content:space-between;
       gap:10px;
+      margin-bottom:8px;
     }
-    .ghost-left{ display:flex; align-items:center; gap:10px; }
-    .dot{ width:10px; height:10px; border-radius:999px; background: rgba(255,255,255,.14); border:1px solid rgba(255,255,255,.16); }
-    .line{ height:10px; width:160px; border-radius:999px; background: rgba(255,255,255,.10); }
-    .line.sm{ width:110px; opacity:.8; }
-    .line.xs{ width:80px; opacity:.65; }
+    .taskrow.done{ opacity:.65; }
+    .taskleft{ display:flex; align-items:center; gap:10px; flex:1; }
+    .chk{
+      width:22px; height:22px;
+      display:grid; place-items:center;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.16);
+      color: var(--accent);
+      font-weight:900;
+      flex:0 0 auto;
+    }
+    .tTitle{ font-size:16px; }
+    .handle{ opacity:.5; user-select:none; }
+
+    /* Calendar */
+    .cal-dow{
+      display:grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap:8px;
+      margin-bottom:10px;
+      color: var(--muted);
+      font-size:11px;
+      text-align:center;
+    }
+    .cal-grid{
+      display:grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap:8px;
+    }
+    .cal-cell{
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.03);
+      border-radius:12px;
+      padding:10px;
+      min-height:48px;
+      text-align:left;
+      color: var(--text);
+    }
+    .cal-cell.empty{
+      background: transparent;
+      border-color: transparent;
+    }
+    .cal-cell.today{
+      border-color: color-mix(in oklab, var(--accent), #ffffff 25%);
+      background: color-mix(in oklab, var(--accent), transparent 88%);
+    }
+    .cal-cell.selected{
+      outline: 2px solid rgba(255,255,255,.18);
+    }
+    .cal-num{ font-weight:800; font-size:12px; }
   </style>
 </head>
 
@@ -191,90 +252,16 @@
     <div class="topbar">
       <div>
         <div class="title" id="topTitle">Today</div>
-        <div class="subtitle" id="topSub">Ritual • V3 navigation</div>
+        <div class="subtitle" id="topSub">Ritual • V3</div>
       </div>
       <button class="iconbtn" id="moreBtn" aria-label="More">⋯</button>
     </div>
 
     <div class="pager" id="pager">
-      <!-- TODAY -->
-      <section class="page" data-page="today">
-        <div class="card card--hero">
-          <div class="h2">Today</div>
-          <div class="muted small">This is navigation only. Next: tasks + persistence.</div>
-          <div class="divider"></div>
-          <div class="row" style="flex-wrap:wrap;gap:8px;">
-            <span class="pill" id="pillDate"></span>
-            <span class="pill">0/0 done</span>
-          </div>
-        </div>
-
-        <div class="card grow">
-          <div class="h2">Tasks</div>
-          <div class="muted small">Coming next. This area will become the task list.</div>
-          <div class="divider"></div>
-          <div class="ghost-list" aria-hidden="true">
-            <div class="ghost-row"><div class="ghost-left"><div class="dot"></div><div class="line"></div></div><div class="line xs"></div></div>
-            <div class="ghost-row"><div class="ghost-left"><div class="dot"></div><div class="line sm"></div></div><div class="line xs"></div></div>
-            <div class="ghost-row"><div class="ghost-left"><div class="dot"></div><div class="line"></div></div><div class="line xs"></div></div>
-          </div>
-        </div>
-      </section>
-
-      <!-- CALENDAR -->
-      <section class="page" data-page="calendar">
-        <div class="card card--hero">
-          <div class="h2">Calendar</div>
-          <div class="muted small">Month grid + day sheet later.</div>
-        </div>
-
-        <div class="card grow">
-          <div class="h2">Month</div>
-          <div class="muted small">This will show dots + score per day.</div>
-          <div class="divider"></div>
-          <div class="ghost-list" aria-hidden="true">
-            <div class="ghost-row"><div class="ghost-left"><div class="dot"></div><div class="line"></div></div><div class="pill">tap day</div></div>
-            <div class="ghost-row"><div class="ghost-left"><div class="dot"></div><div class="line sm"></div></div><div class="pill">tap day</div></div>
-          </div>
-        </div>
-      </section>
-
-      <!-- SCORE -->
-      <section class="page" data-page="score">
-        <div class="card card--hero">
-          <div class="h2">Score</div>
-          <div class="muted small">Levels + progress later.</div>
-        </div>
-
-        <div class="card grow">
-          <div class="h2">Progress</div>
-          <div class="muted small">Total score, today score, level ladder.</div>
-          <div class="divider"></div>
-          <div class="ghost-list" aria-hidden="true">
-            <div class="ghost-row"><div class="ghost-left"><div class="dot"></div><div class="line sm"></div></div><div class="pill">0 pts</div></div>
-            <div class="ghost-row"><div class="ghost-left"><div class="dot"></div><div class="line"></div></div><div class="pill">Rookie</div></div>
-          </div>
-        </div>
-      </section>
-
-      <!-- SETTINGS -->
-      <section class="page" data-page="settings">
-        <div class="card card--hero">
-          <div class="h2">Settings</div>
-          <div class="muted small">Theme, backup export, reminders note.</div>
-        </div>
-
-        <div class="card grow">
-          <div class="h2">Next</div>
-          <div class="muted small">We’ll add Export Backup + theme packs later.</div>
-          <div class="divider"></div>
-          <div class="ghost-list" aria-hidden="true">
-            <div class="ghost-row"><div class="ghost-left"><div class="dot"></div><div class="line"></div></div><div class="pill">theme</div></div>
-            <div class="ghost-row"><div class="ghost-left"><div class="dot"></div><div class="line sm"></div></div><div class="pill">backup</div></div>
-            <div class="ghost-row"><div class="ghost-left"><div class="dot"></div><div class="line"></div></div><div class="pill">about</div></div>
-          </div>
-        </div>
-      </section>
+      <section class="page"><div id="screenToday"></div></section>
+      <section class="page"><div id="screenCalendar"></div></section>
+      <section class="page"><div id="screenScore"></div></section>
+      <section class="page"><div id="screenSettings"></div></section>
     </div>
   </div>
 
@@ -285,52 +272,58 @@
     <button class="tab" data-tab="settings"><div class="icon">⚙︎</div><div class="lbl">Settings</div></button>
   </nav>
 
-  <script>
-    // NAVIGATION ONLY (Phase A)
+  <script type="module">
+    import { routeTo, openTemplates } from "./v3/router.js";
+    import { getSettings } from "./v3/store.js";
+
+    // --- Navigation engine (same behavior you already had) ---
     const pages = ["today","calendar","score","settings"];
     let idx = 0;
 
     const pager = document.getElementById("pager");
     const topTitle = document.getElementById("topTitle");
     const topSub = document.getElementById("topSub");
-    const pillDate = document.getElementById("pillDate");
 
-    function pad2(n){ return String(n).padStart(2,"0"); }
-    function todayKey(){
-      const d=new Date();
-      return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`;
-    }
-    pillDate.textContent = `Date: ${todayKey()}`;
+    const roots = {
+      today: document.getElementById("screenToday"),
+      calendar: document.getElementById("screenCalendar"),
+      score: document.getElementById("screenScore"),
+      settings: document.getElementById("screenSettings"),
+    };
 
-    function setHeader(i){
-      const name = pages[i];
+    function setHeader(name){
       topTitle.textContent =
         name==="today" ? "Today" :
         name==="calendar" ? "Calendar" :
         name==="score" ? "Score" : "Settings";
-
-      topSub.textContent = "Ritual • V3 navigation";
+      topSub.textContent = "Ritual • V3";
     }
 
-    function setActive(i){
+    function setActive(name){
       document.querySelectorAll(".tab").forEach(t=>{
-        t.classList.toggle("active", t.dataset.tab === pages[i]);
+        t.classList.toggle("active", t.dataset.tab === name);
       });
-      setHeader(i);
+      setHeader(name);
     }
 
-    function goTo(i, smooth=true){
-      idx = Math.max(0, Math.min(pages.length-1, i)); // NO LOOP
+    async function renderPage(name){
+      await routeTo(name, roots[name]);
+    }
+
+    async function goTo(i, smooth=true){
+      idx = Math.max(0, Math.min(pages.length-1, i));
+      const name = pages[idx];
       pager.scrollTo({ left: idx * pager.clientWidth, behavior: smooth ? "smooth" : "auto" });
-      setActive(idx);
+      setActive(name);
+      await renderPage(name);
     }
 
-    // Tap tabs
+    // Tabs click
     document.querySelectorAll(".tab").forEach(btn=>{
       btn.addEventListener("click", ()=>goTo(pages.indexOf(btn.dataset.tab)));
     });
 
-    // Swipe between tabs (no loop)
+    // Swipe between tabs
     let startX=0, startY=0, active=false;
     const EDGE=20, SWIPE=60, VERT=12;
 
@@ -344,7 +337,7 @@
     pager.addEventListener("touchmove",(e)=>{
       if(!active || !e.touches || e.touches.length!==1) return;
       const t=e.touches[0];
-      if(Math.abs(t.clientY-startY) > VERT) active=false; // cancel on scroll
+      if(Math.abs(t.clientY-startY) > VERT) active=false;
     },{passive:true});
 
     pager.addEventListener("touchend",(e)=>{
@@ -352,15 +345,30 @@
       active=false;
       const t=e.changedTouches && e.changedTouches[0];
       if(!t) return;
-
       const dx=t.clientX-startX;
       if(Math.abs(dx) < SWIPE) return;
-
       if(dx < 0 && idx < pages.length-1) goTo(idx+1);
       if(dx > 0 && idx > 0) goTo(idx-1);
     },{passive:true});
 
     window.addEventListener("resize", ()=>goTo(idx,false));
+
+    // Apply saved theme accent at startup
+    (async () => {
+      const s = await getSettings();
+      const map = {
+        ember: "#ff7a18",
+        blue: "#3b82f6",
+        purple: "#a855f7",
+        green: "#22c55e",
+        orange: "#f59e0b",
+        red: "#ef4444",
+        pink: "#ec4899"
+      };
+      document.documentElement.style.setProperty("--accent", map[s.themeId] || map.ember);
+    })();
+
+    // Initial render
     goTo(0,false);
   </script>
 </body>
