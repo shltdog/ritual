@@ -3,7 +3,6 @@
 <head>
   <meta charset="utf-8" />
   <title>Ritual</title>
-
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
@@ -17,19 +16,14 @@
       --card2:rgba(255,255,255,.04);
       --border:rgba(255,255,255,.10);
       --accent:#ff7a18;
-      --danger:#ef4444;
-
       --radius:16px;
       --pad:14px;
-
       --safe-top: env(safe-area-inset-top);
       --safe-bottom: env(safe-area-inset-bottom);
       --tabs-h: 78px;
     }
-
     *{ box-sizing:border-box; font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",system-ui,sans-serif; -webkit-tap-highlight-color: transparent; }
     html, body { height:100%; margin:0; background:var(--bg); color:var(--text); }
-
     #app{
       min-height:100vh;
       max-width:420px;
@@ -37,129 +31,20 @@
       padding: calc(var(--safe-top) + 10px) var(--pad) calc(var(--safe-bottom) + var(--tabs-h));
       position:relative;
     }
+    .topbar{ display:flex; justify-content:space-between; align-items:flex-start; gap:10px; margin-bottom:12px; }
+    .title{ font-size:28px; font-weight:800; letter-spacing:.2px; line-height:1.05; }
+    .subtitle{ font-size:12px; color:var(--muted); margin-top:5px; }
 
-    #app::before{
-      content:"";
-      position:fixed;
-      inset:0;
-      pointer-events:none;
-      background:
-        radial-gradient(1200px 600px at 15% 0%, color-mix(in oklab, var(--accent), transparent 82%), transparent 60%),
-        radial-gradient(900px 500px at 90% 10%, rgba(255,255,255,.06), transparent 55%),
-        radial-gradient(900px 900px at 50% 120%, rgba(255,255,255,.04), transparent 60%);
-      opacity:.9;
-      z-index:-1;
-    }
+    .pager{ display:flex; overflow:hidden; touch-action: pan-y; }
+    .page{ min-width:100%; display:flex; flex-direction:column; gap:10px; }
 
-    .topbar{
-      display:flex;
-      justify-content:space-between;
-      align-items:flex-start;
-      gap:10px;
-      margin-bottom:12px;
-    }
-    .title{
-      font-size:28px;
-      font-weight:800;
-      letter-spacing:.2px;
-      line-height:1.05;
-    }
-    .subtitle{
-      font-size:12px;
-      color:var(--muted);
-      margin-top:5px;
-    }
-    .iconbtn{
-      border:1px solid var(--border);
-      background:var(--card);
-      color:var(--text);
-      padding:10px 12px;
-      border-radius:12px;
-      font-size:18px;
-      line-height:1;
-    }
-
-    .pager{
-      display:flex;
-      overflow:hidden;
-      touch-action: pan-y;
-      min-height: calc(100vh - (var(--safe-top) + 10px) - (var(--safe-bottom) + var(--tabs-h)) - 64px);
-    }
-    .page{
-      min-width:100%;
-      display:flex;
-      flex-direction:column;
-      gap:10px;
-    }
-
-    .card{
-      background:var(--card2);
-      border:1px solid var(--border);
-      border-radius:var(--radius);
-      padding:14px;
-    }
-    .card--hero{
-      background: linear-gradient(180deg,
-        color-mix(in oklab, var(--accent), transparent 88%),
-        rgba(255,255,255,.03));
-      border-color: color-mix(in oklab, var(--accent), #ffffff 18%);
-    }
-    .h2{ font-size:16px; font-weight:800; margin:0 0 6px; letter-spacing:.2px; }
-    .muted{ color:var(--muted); }
-    .small{ font-size:12px; }
-    .divider{ height:1px; background: rgba(255,255,255,.08); margin:10px 0; }
-    .row{ display:flex; align-items:center; gap:10px; }
-    .between{ justify-content:space-between; }
-    .stack{ display:flex; flex-direction:column; gap:10px; }
-    .grow{ flex:1; }
-
-    .input{
-      border:1px solid var(--border);
-      background:var(--card);
-      color:var(--text);
-      border-radius:12px;
-      padding:12px;
-      font-size:16px;
-      width:100%;
-    }
-    .btn{
-      border:1px solid var(--border);
-      background:var(--card);
-      color:var(--text);
-      border-radius:12px;
-      padding:12px 12px;
-      font-size:14px;
-      white-space:nowrap;
-    }
-    .btn--primary{
-      border-color: color-mix(in oklab, var(--accent), #ffffff 25%);
-      background: color-mix(in oklab, var(--accent), transparent 82%);
-    }
-
-    .progress{
-      height:10px;
-      border-radius:999px;
-      border:1px solid var(--border);
-      background: rgba(255,255,255,.03);
-      overflow:hidden;
-    }
-    .progress__bar{
-      height:100%;
-      background: var(--accent);
-      width:0%;
-    }
-
-    /* Tabs */
     .tabs{
-      position:fixed;
-      left:0; right:0; bottom:0;
+      position:fixed; left:0; right:0; bottom:0;
       padding:10px 12px calc(var(--safe-bottom) + 10px);
       background: rgba(10,10,12,.92);
       border-top:1px solid rgba(255,255,255,.08);
       backdrop-filter: blur(10px);
-      display:flex;
-      gap:10px;
-      z-index:50;
+      display:flex; gap:10px; z-index:50;
     }
     .tab{
       flex:1;
@@ -168,11 +53,8 @@
       color: rgba(255,255,255,.65);
       border-radius:14px;
       padding:10px 0;
-      display:grid;
-      place-items:center;
-      gap:3px;
-      user-select:none;
-      -webkit-user-select:none;
+      display:grid; place-items:center; gap:3px;
+      user-select:none; -webkit-user-select:none;
     }
     .tab .icon{ font-size:16px; }
     .tab .lbl{ font-size:11px; }
@@ -181,69 +63,6 @@
       border-color: color-mix(in oklab, var(--accent), #ffffff 25%);
       background: color-mix(in oklab, var(--accent), transparent 86%);
     }
-
-    /* Task rows */
-    .taskrow{
-      border:1px solid rgba(255,255,255,.10);
-      background: rgba(255,255,255,.03);
-      border-radius:14px;
-      padding:12px;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-      margin-bottom:8px;
-    }
-    .taskrow.done{ opacity:.65; }
-    .taskleft{ display:flex; align-items:center; gap:10px; flex:1; }
-    .chk{
-      width:22px; height:22px;
-      display:grid; place-items:center;
-      border-radius:999px;
-      border:1px solid rgba(255,255,255,.16);
-      color: var(--accent);
-      font-weight:900;
-      flex:0 0 auto;
-    }
-    .tTitle{ font-size:16px; }
-    .handle{ opacity:.5; user-select:none; }
-
-    /* Calendar */
-    .cal-dow{
-      display:grid;
-      grid-template-columns: repeat(7, 1fr);
-      gap:8px;
-      margin-bottom:10px;
-      color: var(--muted);
-      font-size:11px;
-      text-align:center;
-    }
-    .cal-grid{
-      display:grid;
-      grid-template-columns: repeat(7, 1fr);
-      gap:8px;
-    }
-    .cal-cell{
-      border:1px solid rgba(255,255,255,.10);
-      background: rgba(255,255,255,.03);
-      border-radius:12px;
-      padding:10px;
-      min-height:48px;
-      text-align:left;
-      color: var(--text);
-    }
-    .cal-cell.empty{
-      background: transparent;
-      border-color: transparent;
-    }
-    .cal-cell.today{
-      border-color: color-mix(in oklab, var(--accent), #ffffff 25%);
-      background: color-mix(in oklab, var(--accent), transparent 88%);
-    }
-    .cal-cell.selected{
-      outline: 2px solid rgba(255,255,255,.18);
-    }
-    .cal-num{ font-weight:800; font-size:12px; }
   </style>
 </head>
 
@@ -254,7 +73,6 @@
         <div class="title" id="topTitle">Today</div>
         <div class="subtitle" id="topSub">Ritual • V3</div>
       </div>
-      <button class="iconbtn" id="moreBtn" aria-label="More">⋯</button>
     </div>
 
     <div class="pager" id="pager">
@@ -273,145 +91,100 @@
   </nav>
 
   <script type="module">
-  // Always-visible debug panel (works even when module imports fail)
-  const panel = document.createElement("div");
-  panel.style.cssText =
-    "position:fixed;left:10px;right:10px;bottom:calc(env(safe-area-inset-bottom) + 92px);" +
-    "background:rgba(0,0,0,.75);border:1px solid rgba(255,255,255,.15);" +
-    "border-radius:12px;padding:10px;color:#fff;font:12px -apple-system;z-index:9999;max-height:35vh;overflow:auto;";
-  panel.innerHTML = "<b>Ritual Debug</b><div id='dbg'></div>";
-  document.body.appendChild(panel);
-  const dbg = panel.querySelector("#dbg");
+    import { routeTo } from "./v3/router.js";
+    import { getSettings } from "./v3/store.js";
 
-  function log(msg){
-    const d = document.createElement("div");
-    d.textContent = "• " + msg;
-    dbg.appendChild(d);
-    panel.scrollTop = panel.scrollHeight;
-  }
-  function showError(e){
-    log("ERROR: " + (e?.message || String(e)));
-    if (e?.stack) {
-      const pre = document.createElement("pre");
-      pre.style.cssText = "white-space:pre-wrap;opacity:.9;margin:8px 0 0;";
-      pre.textContent = e.stack;
-      dbg.appendChild(pre);
+    const pages = ["today","calendar","score","settings"];
+    let idx = 0;
+
+    const pager = document.getElementById("pager");
+    const topTitle = document.getElementById("topTitle");
+    const topSub = document.getElementById("topSub");
+
+    const roots = {
+      today: document.getElementById("screenToday"),
+      calendar: document.getElementById("screenCalendar"),
+      score: document.getElementById("screenScore"),
+      settings: document.getElementById("screenSettings"),
+    };
+
+    function setHeader(name){
+      topTitle.textContent =
+        name==="today" ? "Today" :
+        name==="calendar" ? "Calendar" :
+        name==="score" ? "Score" : "Settings";
+      topSub.textContent = "Ritual • V3";
     }
-  }
 
-  log("Script loaded.");
-
-  (async () => {
-    try {
-      log("Importing store.js...");
-      const store = await import("./v3/store.js");
-      log("store.js OK");
-
-      log("Importing router.js...");
-      const router = await import("./v3/router.js");
-      log("router.js OK");
-
-      // Apply saved theme (if available)
-      try {
-        const s = await store.getSettings();
-        const map = {
-          ember: "#ff7a18", blue: "#3b82f6", purple: "#a855f7", green: "#22c55e",
-          orange: "#f59e0b", red: "#ef4444", pink: "#ec4899"
-        };
-        document.documentElement.style.setProperty("--accent", map[s.themeId] || map.ember);
-        log("Theme applied: " + (s.themeId || "ember"));
-      } catch (e) {
-        log("Theme apply skipped (non-fatal).");
-      }
-
-      const pages = ["today","calendar","score","settings"];
-      let idx = 0;
-
-      const pager = document.getElementById("pager");
-      const topTitle = document.getElementById("topTitle");
-      const topSub = document.getElementById("topSub");
-
-      const roots = {
-        today: document.getElementById("screenToday"),
-        calendar: document.getElementById("screenCalendar"),
-        score: document.getElementById("screenScore"),
-        settings: document.getElementById("screenSettings"),
-      };
-
-      log("DOM refs OK.");
-
-      function setHeader(name){
-        topTitle.textContent =
-          name==="today" ? "Today" :
-          name==="calendar" ? "Calendar" :
-          name==="score" ? "Score" : "Settings";
-        topSub.textContent = "Ritual • V3";
-      }
-
-      function setActive(name){
-        document.querySelectorAll(".tab").forEach(t=>{
-          t.classList.toggle("active", t.dataset.tab === name);
-        });
-        setHeader(name);
-      }
-
-      async function renderPage(name){
-        log("Rendering: " + name);
-        await router.routeTo(name, roots[name]);
-        log("Rendered: " + name);
-      }
-
-      async function goTo(i, smooth=true){
-        idx = Math.max(0, Math.min(pages.length-1, i));
-        const name = pages[idx];
-        pager.scrollTo({ left: idx * pager.clientWidth, behavior: smooth ? "smooth" : "auto" });
-        setActive(name);
-        await renderPage(name);
-      }
-
-      // Tab clicks
-      document.querySelectorAll(".tab").forEach(btn=>{
-        btn.addEventListener("click", ()=>goTo(pages.indexOf(btn.dataset.tab)));
+    function setActive(name){
+      document.querySelectorAll(".tab").forEach(t=>{
+        t.classList.toggle("active", t.dataset.tab === name);
       });
-
-      // Swipe
-      let startX=0, startY=0, active=false;
-      const EDGE=20, SWIPE=60, VERT=12;
-
-      pager.addEventListener("touchstart",(e)=>{
-        if(!e.touches || e.touches.length!==1) return;
-        const t=e.touches[0];
-        if(t.clientX < EDGE || t.clientX > window.innerWidth-EDGE){ active=false; return; }
-        startX=t.clientX; startY=t.clientY; active=true;
-      },{passive:true});
-
-      pager.addEventListener("touchmove",(e)=>{
-        if(!active || !e.touches || e.touches.length!==1) return;
-        const t=e.touches[0];
-        if(Math.abs(t.clientY-startY) > VERT) active=false;
-      },{passive:true});
-
-      pager.addEventListener("touchend",(e)=>{
-        if(!active) return;
-        active=false;
-        const t=e.changedTouches && e.changedTouches[0];
-        if(!t) return;
-        const dx=t.clientX-startX;
-        if(Math.abs(dx) < SWIPE) return;
-        if(dx < 0 && idx < pages.length-1) goTo(idx+1);
-        if(dx > 0 && idx > 0) goTo(idx-1);
-      },{passive:true});
-
-      window.addEventListener("resize", ()=>goTo(idx,false));
-
-      log("Starting app…");
-      await goTo(0,false);
-      log("App started ✅");
-
-    } catch (e) {
-      showError(e);
+      setHeader(name);
     }
-  })();
-</script>
+
+    async function renderPage(name){
+      await routeTo(name, roots[name]);
+    }
+
+    async function goTo(i, smooth=true){
+      idx = Math.max(0, Math.min(pages.length-1, i));
+      const name = pages[idx];
+      pager.scrollTo({ left: idx * pager.clientWidth, behavior: smooth ? "smooth" : "auto" });
+      setActive(name);
+      await renderPage(name);
+    }
+
+    document.querySelectorAll(".tab").forEach(btn=>{
+      btn.addEventListener("click", ()=>goTo(pages.indexOf(btn.dataset.tab)));
+    });
+
+    // swipe
+    let startX=0, startY=0, active=false;
+    const EDGE=20, SWIPE=60, VERT=12;
+
+    pager.addEventListener("touchstart",(e)=>{
+      if(!e.touches || e.touches.length!==1) return;
+      const t=e.touches[0];
+      if(t.clientX < EDGE || t.clientX > window.innerWidth-EDGE){ active=false; return; }
+      startX=t.clientX; startY=t.clientY; active=true;
+    },{passive:true});
+
+    pager.addEventListener("touchmove",(e)=>{
+      if(!active || !e.touches || e.touches.length!==1) return;
+      const t=e.touches[0];
+      if(Math.abs(t.clientY-startY) > VERT) active=false;
+    },{passive:true});
+
+    pager.addEventListener("touchend",(e)=>{
+      if(!active) return;
+      active=false;
+      const t=e.changedTouches && e.changedTouches[0];
+      if(!t) return;
+      const dx=t.clientX-startX;
+      if(Math.abs(dx) < SWIPE) return;
+      if(dx < 0 && idx < pages.length-1) goTo(idx+1);
+      if(dx > 0 && idx > 0) goTo(idx-1);
+    },{passive:true});
+
+    window.addEventListener("resize", ()=>goTo(idx,false));
+
+    // apply theme
+    (async () => {
+      const s = await getSettings();
+      const map = {
+        ember: "#ff7a18",
+        blue: "#3b82f6",
+        purple: "#a855f7",
+        green: "#22c55e",
+        orange: "#f59e0b",
+        red: "#ef4444",
+        pink: "#ec4899"
+      };
+      document.documentElement.style.setProperty("--accent", map[s.themeId] || map.ember);
+    })();
+
+    goTo(0,false);
+  </script>
 </body>
 </html>
