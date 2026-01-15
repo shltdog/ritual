@@ -145,6 +145,14 @@ export async function renderCalendar(rootEl) {
   // Update selected panel
   await updateSelectedPanel(rootEl, st.selected, counts[st.selected] ?? null, holidayMap.get(st.selected) || "");
 
+  // ===== INSERTED (ONLY ADDITION): day tap now opens that date in Today =====
+  const ACTIVE_DATE_KEY = "ritual_active_date";
+  const jumpToTodayTab = () => {
+    const btn = document.querySelector(".tab[data-tab='today']");
+    if (btn) btn.click();
+  };
+  // =======================================================================
+
   // Day tap handler (use pointer/touch for iPhone reliability)
   const handler = async (key) => {
     renderCalendar.state.selected = key;
@@ -161,6 +169,11 @@ export async function renderCalendar(rootEl) {
 
     // Update selected panel
     await updateSelectedPanel(rootEl, key, counts[key] ?? null, holidayMap.get(key) || "");
+
+    // ===== INSERTED (ONLY ADDITION): store active date + jump to Today =====
+    localStorage.setItem(ACTIVE_DATE_KEY, key);
+    jumpToTodayTab();
+    // =====================================================================
   };
 
   gridEl.querySelectorAll(".dayCell[data-key]").forEach(btn => {
