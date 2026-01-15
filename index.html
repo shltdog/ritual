@@ -8,62 +8,208 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 
   <style>
-    :root{
-      --bg:#0b0b0d;
-      --text:#fff;
-      --muted:rgba(255,255,255,.65);
-      --card:rgba(255,255,255,.06);
-      --card2:rgba(255,255,255,.04);
-      --border:rgba(255,255,255,.10);
-      --accent:#ff7a18;
-      --radius:16px;
-      --pad:14px;
-      --safe-top: env(safe-area-inset-top);
-      --safe-bottom: env(safe-area-inset-bottom);
-      --tabs-h: 78px;
-    }
-    *{ box-sizing:border-box; font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",system-ui,sans-serif; -webkit-tap-highlight-color: transparent; }
-    html, body { height:100%; margin:0; background:var(--bg); color:var(--text); }
-    #app{
-      min-height:100vh;
-      max-width:420px;
-      margin:0 auto;
-      padding: calc(var(--safe-top) + 10px) var(--pad) calc(var(--safe-bottom) + var(--tabs-h));
-      position:relative;
-    }
-    .topbar{ display:flex; justify-content:space-between; align-items:flex-start; gap:10px; margin-bottom:12px; }
-    .title{ font-size:28px; font-weight:800; letter-spacing:.2px; line-height:1.05; }
-    .subtitle{ font-size:12px; color:var(--muted); margin-top:5px; }
+  :root{
+    --bg:#0b0b0d;
+    --text:#fff;
+    --muted:rgba(255,255,255,.68);
+    --muted2:rgba(255,255,255,.45);
 
-    .pager{ display:flex; overflow:hidden; touch-action: pan-y; }
-    .page{ min-width:100%; display:flex; flex-direction:column; gap:10px; }
+    --card:rgba(255,255,255,.06);
+    --card2:rgba(255,255,255,.04);
+    --border:rgba(255,255,255,.10);
 
-    .tabs{
-      position:fixed; left:0; right:0; bottom:0;
-      padding:10px 12px calc(var(--safe-bottom) + 10px);
-      background: rgba(10,10,12,.92);
-      border-top:1px solid rgba(255,255,255,.08);
-      backdrop-filter: blur(10px);
-      display:flex; gap:10px; z-index:50;
-    }
-    .tab{
-      flex:1;
-      border:1px solid rgba(255,255,255,.10);
-      background: rgba(255,255,255,.03);
-      color: rgba(255,255,255,.65);
-      border-radius:14px;
-      padding:10px 0;
-      display:grid; place-items:center; gap:3px;
-      user-select:none; -webkit-user-select:none;
-    }
-    .tab .icon{ font-size:16px; }
-    .tab .lbl{ font-size:11px; }
-    .tab.active{
-      color:var(--text);
-      border-color: color-mix(in oklab, var(--accent), #ffffff 25%);
-      background: color-mix(in oklab, var(--accent), transparent 86%);
-    }
-  </style>
+    --accent:#ff7a18;
+    --good:#22c55e;
+    --danger:#ef4444;
+
+    --radius:18px;
+    --radius2:14px;
+
+    --pad:16px;
+    --gap:12px;
+
+    --safe-top: env(safe-area-inset-top);
+    --safe-bottom: env(safe-area-inset-bottom);
+    --tabs-h: 88px;
+  }
+
+  *{
+    box-sizing:border-box;
+    font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",system-ui,sans-serif;
+    -webkit-tap-highlight-color: transparent;
+  }
+  html, body { height:100%; margin:0; background:var(--bg); color:var(--text); }
+  body{ overflow-x:hidden; }
+
+  /* App canvas */
+  #app{
+    min-height:100vh;
+    max-width: 520px;
+    margin: 0 auto;
+    padding: calc(var(--safe-top) + 14px) var(--pad) calc(var(--safe-bottom) + var(--tabs-h));
+  }
+
+  /* Header */
+  .topbar{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:12px;
+    margin-bottom: 12px;
+  }
+  .title{
+    font-size: 34px;
+    font-weight: 900;
+    letter-spacing: -0.6px;
+    line-height: 1.05;
+  }
+  .subtitle{
+    margin-top: 8px;
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  /* Pager */
+  .pager{
+    display:flex;
+    overflow:hidden;
+    touch-action: pan-y;
+    border-radius: 22px;
+  }
+  .page{
+    min-width:100%;
+    display:flex;
+    flex-direction:column;
+    gap: var(--gap);
+  }
+
+  /* Cards (generic, works with your existing JS output) */
+  .card{
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px;
+    backdrop-filter: blur(10px);
+  }
+  .card + .card{ margin-top: var(--gap); }
+
+  .row{ display:flex; align-items:center; gap:10px; }
+  .between{ justify-content:space-between; }
+  .grow{ flex: 1; }
+
+  .h2{
+    font-size: 18px;
+    font-weight: 900;
+    letter-spacing: -0.2px;
+    margin: 0 0 6px;
+  }
+  .small{ font-size: 12px; }
+  .muted{ color: var(--muted); }
+
+  .divider{
+    height: 1px;
+    background: rgba(255,255,255,.10);
+    margin: 12px 0;
+  }
+
+  /* Inputs / buttons (applies to your current HTML output) */
+  input, textarea, select{
+    background: rgba(255,255,255,.06);
+    color: var(--text);
+    border: 1px solid rgba(255,255,255,.12);
+    border-radius: 14px;
+    padding: 12px 12px;
+    outline: none;
+    font-size: 15px;
+  }
+  input::placeholder, textarea::placeholder{ color: rgba(255,255,255,.35); }
+
+  button{
+    border-radius: 14px;
+    border: 1px solid rgba(255,255,255,.12);
+    background: rgba(255,255,255,.04);
+    color: var(--text);
+    padding: 10px 12px;
+    font-weight: 800;
+    font-size: 14px;
+  }
+  button:active{ transform: scale(.99); }
+  button[disabled]{ opacity: .45; }
+
+  /* Make primary actions pop if your JS uses .primary, .btn--primary, etc */
+  .primary, .btn--primary{
+    background: color-mix(in oklab, var(--accent), transparent 82%);
+    border-color: color-mix(in oklab, var(--accent), #ffffff 18%);
+  }
+
+  /* Tab bar */
+  .tabs{
+    position:fixed;
+    left:0; right:0; bottom:0;
+    padding: 10px 12px calc(var(--safe-bottom) + 10px);
+    background: rgba(10,10,12,.92);
+    border-top:1px solid rgba(255,255,255,.08);
+    backdrop-filter: blur(14px);
+    display:flex;
+    gap:10px;
+    z-index:50;
+  }
+  .tab{
+    flex:1;
+    border:1px solid rgba(255,255,255,.10);
+    background: rgba(255,255,255,.03);
+    color: rgba(255,255,255,.70);
+    border-radius: 16px;
+    padding: 10px 0;
+    display:grid;
+    place-items:center;
+    gap:3px;
+    user-select:none;
+    -webkit-user-select:none;
+    min-height: 52px;
+  }
+  .tab .icon{ font-size:16px; }
+  .tab .lbl{ font-size:11px; letter-spacing:.1px; }
+  .tab.active{
+    color: var(--text);
+    border-color: color-mix(in oklab, var(--accent), #ffffff 25%);
+    background: color-mix(in oklab, var(--accent), transparent 86%);
+    box-shadow: 0 0 0 1px rgba(0,0,0,.35) inset;
+  }
+
+  /* Calendar: if your calendar.js outputs a grid/table, this helps a ton */
+  .calendar-grid{
+    display:grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 8px;
+    margin-top: 10px;
+  }
+  .daycell{
+    border: 1px solid rgba(255,255,255,.10);
+    background: rgba(255,255,255,.04);
+    border-radius: 14px;
+    padding: 10px 0;
+    text-align:center;
+    font-weight: 900;
+  }
+  .daycell.today{
+    border-color: color-mix(in oklab, var(--accent), #ffffff 25%);
+    background: color-mix(in oklab, var(--accent), transparent 86%);
+  }
+
+  /* Score list readability */
+  .score-list div, .levels div{
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(255,255,255,.07);
+  }
+  .score-list div:last-child, .levels div:last-child{ border-bottom: none; }
+
+  /* Fix "postage stamp" look on big screens */
+  @media (min-width: 700px){
+    #app{ max-width: 620px; }
+    .title{ font-size: 38px; }
+  }
+</style>
 </head>
 
 <body>
