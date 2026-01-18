@@ -1,26 +1,27 @@
-// Ritual V3 — router.js
-// One job: render the correct screen into a root container.
-// We’ll wire this into index.html when we do the final replacement.
+// Ritual V3 — router.js (RC1 COMPAT)
+// Compatibility router (safe even if unused).
+// Routes screen names to the RC1 renderers.
 
 import { renderToday } from "./today.js";
 import { renderCalendar } from "./calendar.js";
 import { renderScore } from "./score.js";
 import { renderSettings } from "./settings.js";
-import { renderTemplates } from "./templates.js";
+import { debugLog } from "./store.js";
 
-export const ROUTES = {
-  today: { title: "Today", render: renderToday },
-  calendar: { title: "Calendar", render: renderCalendar },
-  score: { title: "Score", render: renderScore },
-  settings: { title: "Settings", render: renderSettings },
-};
+export async function routeTo(name, rootEl) {
+  try {
+    if (!rootEl) return;
 
-export async function routeTo(pageName, rootEl) {
-  const r = ROUTES[pageName] || ROUTES.today;
-  await r.render(rootEl);
+    if (name === "today") return await renderToday(rootEl);
+    if (name === "calendar") return await renderCalendar(rootEl);
+    if (name === "score") return await renderScore(rootEl);
+    if (name === "settings") return await renderSettings(rootEl);
+
+    // default
+    return await renderToday(rootEl);
+  } catch (e) {
+    await debugLog(`router:error ${String(e?.message || e)}`);
+  }
 }
 
-// Optional modal/screen routing for templates
-export async function openTemplates(rootEl) {
-  await renderTemplates(rootEl);
-}
+export const ROUTES = ["today", "calendar", "score", "settings"];
