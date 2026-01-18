@@ -1,192 +1,158 @@
-// ======================================================
-// Ritual v3 — main.js
-// Central navigation + app bootstrap
-// ======================================================
+// Ritual V3 — main.js (RC1 GLUE)
+// Wires screens + tabs + swipe + theme + recurring prompt once/day.
 
-import { store } from "./store.js"
-import { renderToday } from "./today.js"
-import { renderCalendar } from "./calendar.js"
-import { renderScore } from "./score.js"
-import { renderSettings } from "./settings.js"
+import { getSettings } from "./store.js";
+import { renderToday } from "./today.js";
+import { renderCalendar } from "./calendar.js";
+import { renderScore } from "./score.js";
+import { renderSettings } from "./settings.js";
+import { maybePromptRecurringForToday } from "./templates.js";
 
-// ------------------------------------------------------
-// DOM REFERENCES (REQUIRED IN index.html)
-// ------------------------------------------------------
+const pages = ["today", "calendar", "score", "settings"];
+let idx = 0;
 
-const screens = {
+const pager = document.getElementById("pager");
+const topTitle = document.getElementById("topTitle");
+const topSub = document.getElementById("topSub");
+
+const roots = {
   today: document.getElementById("screenToday"),
   calendar: document.getElementById("screenCalendar"),
   score: document.getElementById("screenScore"),
-  settings: document.getElementById("screenSettings")
+  settings: document.getElementById("screenSettings"),
+};
+
+// ---------- Theme ----------
+function applyAccentCSS(accentKey) {
+  const map = {
+    red: "#ef4444",
+    ember: "#f97316",
+    orange: "#f59e0b",
+    pink: "#ec4899",
+    purple: "#a855f7",
+    blue: "#3b82f6",
+    green: "#22c55e",
+  };
+  const val = map[String(accentKey || "red").toLowerCase()] || map.red;
+  document.documentElement.style.setProperty("--accent", val);
 }
 
-const navButtons = document.querySelectorAll("[data-nav]")
-const topTitle = document.getElementById("topTitle")
-const topSub = document.getElementById("topSub")
-const pager = document.getElementById("pager")
-const debugOverlay = document.getElementById("debugOverlay")
+async function applyThemeFromSettings() {
+  const s = await getSettings();
+  applyAccentCSS(s.accent || "red");
+}
 
-// ------------------------------------------------------
-// APP STATE
-// ------------------------------------------------------
+// ---------- Header ----------
+function setHeader(name) {
+  topTitle.textContent =
+    name === "today" ? "Today" :
+    name === "calendar" ? "Calendar" :
+    name === "score" ? "Score" : "Settings";
 
-let currentScreen = "today"
+  topSub.textContent = "Ritual • V3";
+}
 
-// ------------------------------------------------------
-// INITIAL BOOT
-// ------------------------------------------------------
+function setActiveTab(name) {
+  document.querySelectorAll(".tab").forEach(t => {
+    t.classList.toggle("active", t.dataset.tab === name);
+  });
+  setHeader(name);
+}
 
-function boot() {
-  store.load()
+// ---------- Render ----------
+async function renderPage(name) {
+  // Ensure scroll space
+  Object.values(roots).forEach(el => {
+    if (!el) return;
+    el.style.minHeight = "1px";
+  });
 
-  renderAll()
-  bindNav()
-  navigate("today", false)
+  if (name === "today") return renderToday(roots.today);
+  if (name === "calendar") return renderCalendar(roots.calendar);
+  if (name === "score") return renderScore(roots.score);
+  if (name === "settings") return renderSettings(roots.settings);
+}
 
-  if (debugOverlay) {
-    debugOverlay.style.display = store.debugEnabled ? "block" : "none"
+async function goTo(i, smooth = true) {
+  idx = Math.max(0, Math.min(pages.length - 1, i));
+  const name = pages[idx];
+
+  if (pager) {
+    pager.scrollTo({ left: idx * pager.clientWidth, behavior: smooth ? "smooth" : "auto" });
   }
 
-  console.log("Ritual v3 booted")
+  setActiveTab(name);
+  await renderPage(name);
 }
 
-// ------------------------------------------------------
-// NAVIGATION
-// ------------------------------------------------------
-
-function bindNav() {
-  navButtons.forEach(btn => {
+// ---------- Tabs ----------
+function wireTabs() {
+  document.querySelectorAll(".tab").forEach(btn => {
     btn.addEventListener("click", () => {
-      const target = btn.dataset.nav
-      navigate(target)
-    })
-  })
+      const name = btn.dataset.tab;
+      const i = pages.indexOf(name);
+      if (i >= 0) goTo(i, true);
+    });
+  });
 }
 
-function navigate(target, animate = true) {
-  if (!screens[target]) return
+// ---------- Swipe ----------
+function wireSwipe() {
+  if (!pager) return;
 
-  currentScreen = target
+  let startX = 0, startY = 0, active = false;
+  const EDGE = 20, SWIPE = 60, VERT = 12;
 
-  // Update nav active state
-  navButtons.forEach(btn => {
-    btn.classList.toggle("active", btn.dataset.nav === target)
-  })
+  pager.addEventListener("touchstart", (e) => {
+    if (!e.touches || e.touches.length !== 1) return;
+    const t = e.touches[0];
+    if (t.clientX < EDGE || t.clientX > window.innerWidth - EDGE) { active = false; return; }
+    startX = t.clientX;
+    startY = t.clientY;
+    active = true;
+  }, { passive: true });
 
-  // Hide all screens
-  Object.values(screens).forEach(s => s.classList.remove("active"))
+  pager.addEventListener("touchmove", (e) => {
+    if (!active || !e.touches || e.touches.length !== 1) return;
+    const t = e.touches[0];
+    if (Math.abs(t.clientY - startY) > VERT) active = false;
+  }, { passive: true });
 
-  // Show target
-  screens[target].classList.add("active")
+  pager.addEventListener("touchend", (e) => {
+    if (!active) return;
+    active = false;
+    const t = e.changedTouches && e.changedTouches[0];
+    if (!t) return;
 
-  // Pager transform (swipe feel)
-  if (animate && pager) {
-    const index = Object.keys(screens).indexOf(target)
-    pager.style.transform = `translateX(-${index * 100}%)`
-  }
+    const dx = t.clientX - startX;
+    if (Math.abs(dx) < SWIPE) return;
 
-  updateHeader(target)
-  renderScreen(target)
+    if (dx < 0 && idx < pages.length - 1) goTo(idx + 1, true);
+    if (dx > 0 && idx > 0) goTo(idx - 1, true);
+  }, { passive: true });
+
+  window.addEventListener("resize", () => goTo(idx, false));
 }
 
-// ------------------------------------------------------
-// HEADER
-// ------------------------------------------------------
+// ---------- Boot ----------
+async function boot() {
+  // Apply accent
+  await applyThemeFromSettings();
 
-function updateHeader(screen) {
-  switch (screen) {
-    case "today":
-      topTitle.textContent = "Today"
-      topSub.textContent = store.todayKey
-      break
+  // Wire UI
+  wireTabs();
+  wireSwipe();
 
-    case "calendar":
-      topTitle.textContent = "Calendar"
-      topSub.textContent = ""
-      break
+  // Initial render
+  await goTo(0, false);
 
-    case "score":
-      topTitle.textContent = "Score"
-      topSub.textContent = `Level: ${store.currentLevel.title}`
-      break
-
-    case "settings":
-      topTitle.textContent = "Settings"
-      topSub.textContent = ""
-      break
-  }
-}
-
-// ------------------------------------------------------
-// RENDERING
-// ------------------------------------------------------
-
-function renderAll() {
-  renderToday(screens.today)
-  renderCalendar(screens.calendar)
-  renderScore(screens.score)
-  renderSettings(screens.settings)
-}
-
-function renderScreen(screen) {
-  switch (screen) {
-    case "today":
-      renderToday(screens.today)
-      break
-    case "calendar":
-      renderCalendar(screens.calendar)
-      break
-    case "score":
-      renderScore(screens.score)
-      break
-    case "settings":
-      renderSettings(screens.settings)
-      break
+  // Recurring prompt once/day (X-only close behavior already built in templates.js)
+  try {
+    await maybePromptRecurringForToday();
+  } catch (e) {
+    // keep silent; app should still run
+    console.warn("Recurring prompt failed", e);
   }
 }
 
-// ------------------------------------------------------
-// SWIPE NAVIGATION (NATURAL FEEL)
-// ------------------------------------------------------
-
-let touchStartX = 0
-let touchEndX = 0
-
-pager.addEventListener("touchstart", e => {
-  touchStartX = e.changedTouches[0].screenX
-})
-
-pager.addEventListener("touchend", e => {
-  touchEndX = e.changedTouches[0].screenX
-  handleSwipe()
-})
-
-function handleSwipe() {
-  const delta = touchEndX - touchStartX
-  if (Math.abs(delta) < 60) return
-
-  const order = ["today", "calendar", "score", "settings"]
-  let idx = order.indexOf(currentScreen)
-
-  if (delta < 0 && idx < order.length - 1) {
-    navigate(order[idx + 1])
-  } else if (delta > 0 && idx > 0) {
-    navigate(order[idx - 1])
-  }
-}
-
-// ------------------------------------------------------
-// DEBUG OVERLAY (SAFE, NON-BLOCKING)
-// ------------------------------------------------------
-
-if (debugOverlay) {
-  debugOverlay.addEventListener("click", () => {
-    debugOverlay.classList.toggle("collapsed")
-  })
-}
-
-// ------------------------------------------------------
-// BOOT
-// ------------------------------------------------------
-
-boot()
+boot();
