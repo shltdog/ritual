@@ -23,7 +23,7 @@ export function renderToday(rootEl) {
   input.className = 'task-input';
 
   const addBtn = document.createElement('button');
-  addBtn.innerHTML = `<img src="/v3/images/task/icon-task-add.png" alt="+" />`;
+  addBtn.innerHTML = `<img src="images/icon-task-add.png" alt="+" />`;
   addBtn.className = 'task-add-btn';
   addBtn.onclick = () => {
     const title = input.value.trim();
@@ -43,20 +43,20 @@ export function renderToday(rootEl) {
 
   const toolsBtn = document.createElement('button');
   toolsBtn.className = 'tools-btn';
-  toolsBtn.innerHTML = `<img src="/v3/images/icon/icon-overflow-more.png.png" alt="tools" /> Tools`;
+  toolsBtn.innerHTML = `<img src="images/icon-overflow-more.png" alt="tools" /> Tools`;
 
   const toolsMenu = document.createElement('div');
   toolsMenu.className = 'tools-menu hidden';
 
   const reorderBtn = document.createElement('button');
-  reorderBtn.innerHTML = `<img src="/v3/images/task/icon-task-reorder.png" /> Reorder Tasks`;
+  reorderBtn.innerHTML = `<img src="images/icon-task-reorder.png" /> Reorder Tasks`;
   reorderBtn.onclick = () => {
     const order = [...taskList.querySelectorAll('.task-row')].map(el => el.dataset.id);
     reorderTasks(dateKey, order).then(refresh);
   };
 
   const importBtn = document.createElement('button');
-  importBtn.innerHTML = `<img src="/v3/images/icon/icon-import-export.png.png" /> Import Plan`;
+  importBtn.innerHTML = `<img src="images/icon-import-export.png" /> Import Plan`;
   importBtn.onclick = () => {
     const pasted = prompt('Paste your list');
     if (!pasted) return;
@@ -66,7 +66,7 @@ export function renderToday(rootEl) {
   };
 
   const copyBtn = document.createElement('button');
-  copyBtn.innerHTML = `<img src="/v3/images/icon/icon-confirm-check.png.png" /> Copy Summary for ChatGPT`;
+  copyBtn.innerHTML = `<img src="images/icon-confirm-check.png" /> Copy Summary for ChatGPT`;
   copyBtn.onclick = async () => {
     const remaining = tasks.filter(t => !t.done).map(t => `- [ ] ${t.title}`);
     const completed = tasks.filter(t => t.done).map(t => `- [x] ${t.title}`);
@@ -75,7 +75,7 @@ export function renderToday(rootEl) {
   };
 
   const clearBtn = document.createElement('button');
-  clearBtn.innerHTML = `<img src="/v3/images/icon/icon-close-cancel.png.png" /> Clear Done`;
+  clearBtn.innerHTML = `<img src="images/icon-close-cancel.png" /> Clear Done`;
   clearBtn.onclick = () => {
     tasks.filter(t => t.done).forEach(t => deleteTask(dateKey, t.id));
     setTimeout(refresh, 300);
@@ -105,7 +105,7 @@ export function renderToday(rootEl) {
       label.textContent = task.title;
 
       const delBtn = document.createElement('button');
-      delBtn.innerHTML = `<img src="/v3/images/task/icon-task-delete.png" />`;
+      delBtn.innerHTML = `<img src="images/icon-task-delete.png" />`;
       delBtn.onclick = () => {
         deleteTask(dateKey, task.id).then(refresh);
       };
