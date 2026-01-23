@@ -1,5 +1,3 @@
-// today.js
-
 import {
   getTasksForDate,
   addTask,
@@ -9,235 +7,129 @@ import {
   reorderTasks
 } from './store.js';
 
-const TODAY_KEY = new Date().toISOString().slice(0, 10);
-
 export function renderToday(rootEl) {
-  rootEl.innerHTML = `
-    <div class="frosted-card">
-      <form id="add-task-form">
-        <input type="text" id="add-task-input" placeholder="Add a task..." />
-        <button type="submit">
-          <img src="/v3/images/task/icon-task-add.png" class="icon" alt="Add" />
-        </button>
-      </form>
-    </div>
+  const dateKey = new Date().toISOString().slice(0, 10);
+  let tasks = [];
 
-    <div id="task-list" class="task-list"></div>
+  const container = document.createElement('div');
+  container.className = 'today-container';
 
-    <div class="frosted-card" style="margin-top: 24px;">
-      <button id="tools-button" class="accent">
-        <img src="/v3/images/icon/icon-overflow-more.png.png" class="icon" alt="Tools" />
-        Tools
-      </button>
-    </div>
+  const topBar = document.createElement('div');
+  topBar.className = 'top-bar';
 
-    <div id="tools-menu" class="frosted-card hidden" style="margin-top: 12px;">
-      <button id="reorder-button">
-        <img src="/v3/images/task/icon-task-reorder.png" class="icon" alt="Reorder" />
-        Reorder Tasks
-      </button>
-      <button id="import-button">
-        <img src="/v3/images/icon/icon-import-export.png.png" class="icon" alt="Import" />
-        Import Plan
-      </button>
-      <button id="copy-summary-button">
-        <img src="/v3/images/icon/icon-backup-cloud.png.png" class="icon" alt="Copy" />
-        Copy Summary for ChatGPT
-      </button>
-      <button id="clear-done-button">
-        <img src="/v3/images/task/icon-task-delete.png" class="icon" alt="Clear Done" />
-        Clear Done
-      </button>
-    </div>
+  const input = document.createElement('input');
+  input.type = 'text';
+  input.placeholder = 'Add a task…';
+  input.className = 'task-input';
 
-    <div id="reorder-sheet" class="frosted-card hidden"></div>
-    <div id="import-sheet" class="frosted-card hidden"></div>
-  `;
-
-  const taskListEl = rootEl.querySelector('#task-list');
-  const input = rootEl.querySelector('#add-task-input');
-  const form = rootEl.querySelector('#add-task-form');
-  const toolsButton = rootEl.querySelector('#tools-button');
-  const toolsMenu = rootEl.querySelector('#tools-menu');
-  const reorderBtn = rootEl.querySelector('#reorder-button');
-  const importBtn = rootEl.querySelector('#import-button');
-  const copyBtn = rootEl.querySelector('#copy-summary-button');
-  const clearDoneBtn = rootEl.querySelector('#clear-done-button');
-  const reorderSheet = rootEl.querySelector('#reorder-sheet');
-  const importSheet = rootEl.querySelector('#import-sheet');
-
-  form.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const val = input.value.trim();
-    if (val) {
-      await addTask(TODAY_KEY, val);
+  const addBtn = document.createElement('button');
+  addBtn.innerHTML = `<img src="/v3/images/task/icon-task-add.png" alt="+" />`;
+  addBtn.className = 'task-add-btn';
+  addBtn.onclick = () => {
+    const title = input.value.trim();
+    if (title) {
+      addTask(dateKey, title).then(refresh);
       input.value = '';
-      renderTasks();
     }
-  });
+  };
 
-  toolsButton.addEventListener('click', () => {
+  const inputRow = document.createElement('div');
+  inputRow.className = 'input-row';
+  inputRow.appendChild(input);
+  inputRow.appendChild(addBtn);
+
+  const taskList = document.createElement('div');
+  taskList.className = 'task-list';
+
+  const toolsBtn = document.createElement('button');
+  toolsBtn.className = 'tools-btn';
+  toolsBtn.innerHTML = `<img src="/v3/images/icon/icon-overflow-more.png.png" alt="tools" /> Tools`;
+
+  const toolsMenu = document.createElement('div');
+  toolsMenu.className = 'tools-menu hidden';
+
+  const reorderBtn = document.createElement('button');
+  reorderBtn.innerHTML = `<img src="/v3/images/task/icon-task-reorder.png" /> Reorder Tasks`;
+  reorderBtn.onclick = () => {
+    const order = [...taskList.querySelectorAll('.task-row')].map(el => el.dataset.id);
+    reorderTasks(dateKey, order).then(refresh);
+  };
+
+  const importBtn = document.createElement('button');
+  importBtn.innerHTML = `<img src="/v3/images/icon/icon-import-export.png.png" /> Import Plan`;
+  importBtn.onclick = () => {
+    const pasted = prompt('Paste your list');
+    if (!pasted) return;
+    const lines = pasted.split('\n').map(l => l.trim()).filter(Boolean);
+    lines.forEach(title => addTask(dateKey, title));
+    setTimeout(refresh, 300);
+  };
+
+  const copyBtn = document.createElement('button');
+  copyBtn.innerHTML = `<img src="/v3/images/icon/icon-confirm-check.png.png" /> Copy Summary for ChatGPT`;
+  copyBtn.onclick = async () => {
+    const remaining = tasks.filter(t => !t.done).map(t => `- [ ] ${t.title}`);
+    const completed = tasks.filter(t => t.done).map(t => `- [x] ${t.title}`);
+    const final = `# Today’s Task Summary\n\n${remaining.join('\n')}\n\n## Completed\n${completed.join('\n')}\n\n(From Ritual app)`;
+    await navigator.clipboard.writeText(final);
+  };
+
+  const clearBtn = document.createElement('button');
+  clearBtn.innerHTML = `<img src="/v3/images/icon/icon-close-cancel.png.png" /> Clear Done`;
+  clearBtn.onclick = () => {
+    tasks.filter(t => t.done).forEach(t => deleteTask(dateKey, t.id));
+    setTimeout(refresh, 300);
+  };
+
+  toolsMenu.append(reorderBtn, importBtn, copyBtn, clearBtn);
+
+  toolsBtn.onclick = () => {
     toolsMenu.classList.toggle('hidden');
-  });
+  };
 
-  reorderBtn.addEventListener('click', () => {
-    toolsMenu.classList.add('hidden');
-    openReorderMode();
-  });
-
-  importBtn.addEventListener('click', () => {
-    toolsMenu.classList.add('hidden');
-    openImportMode();
-  });
-
-  copyBtn.addEventListener('click', async () => {
-    const list = await getTasksForDate(TODAY_KEY);
-    const pending = list.filter(t => !t.done).map(t => `- ${t.title}`).join('\n');
-    const completed = list.filter(t => t.done).map(t => `✓ ${t.title}`).join('\n');
-    const summary = `## My Tasks Today\n\n${pending}\n\n## Completed\n\n${completed}\n\n// Generated by Ritual V3`;
-    await navigator.clipboard.writeText(summary);
-  });
-
-  clearDoneBtn.addEventListener('click', async () => {
-    const list = await getTasksForDate(TODAY_KEY);
-    for (let task of list) {
-      if (task.done) await deleteTask(task.id);
-    }
-    renderTasks();
-  });
-
-  async function renderTasks() {
-    const tasks = await getTasksForDate(TODAY_KEY);
-    taskListEl.innerHTML = '';
-    for (const task of tasks) {
+  function renderTasks() {
+    taskList.innerHTML = '';
+    tasks.forEach(task => {
       const row = document.createElement('div');
-      row.className = 'frosted-card task-row';
-      row.innerHTML = `
-        <span>${task.done ? '✓' : ''} ${task.title}</span>
-        <div class="actions" style="float:right;">
-          <button class="edit-btn"><img src="/v3/images/task/icon-task-edit.png" class="icon" /></button>
-          <button class="delete-btn"><img src="/v3/images/task/icon-task-delete.png" class="icon" /></button>
-        </div>
-      `;
-      row.addEventListener('click', (e) => {
-        if (e.target.closest('button')) return;
-        toggleTaskDone(task.id).then(renderTasks);
-      });
-      row.querySelector('.edit-btn').addEventListener('click', async (e) => {
-        e.stopPropagation();
-        const newTitle = promptInlineEdit(task.title);
-        if (newTitle) {
-          await updateTaskTitle(task.id, newTitle);
-          renderTasks();
-        }
-      });
-      row.querySelector('.delete-btn').addEventListener('click', async (e) => {
-        e.stopPropagation();
-        await deleteTask(task.id);
-        renderTasks();
-      });
-      taskListEl.appendChild(row);
-    }
-  }
+      row.className = 'task-row';
+      row.dataset.id = task.id;
 
-  function promptInlineEdit(oldTitle) {
-    const input = document.createElement('input');
-    input.type = 'text';
-    input.value = oldTitle;
-    input.style.width = '100%';
-    input.style.fontSize = '16px';
-    input.style.padding = '10px';
-    const wrapper = document.createElement('div');
-    wrapper.className = 'frosted-card';
-    wrapper.appendChild(input);
-    const confirmBtn = document.createElement('button');
-    confirmBtn.innerHTML = 'Confirm';
-    confirmBtn.className = 'accent';
-    wrapper.appendChild(confirmBtn);
+      const checkbox = document.createElement('input');
+      checkbox.type = 'checkbox';
+      checkbox.checked = task.done;
+      checkbox.onclick = () => {
+        toggleTaskDone(dateKey, task.id).then(refresh);
+      };
 
-    taskListEl.innerHTML = '';
-    taskListEl.appendChild(wrapper);
-    return new Promise(resolve => {
-      confirmBtn.addEventListener('click', () => {
-        resolve(input.value.trim());
-      });
+      const label = document.createElement('span');
+      label.textContent = task.title;
+
+      const delBtn = document.createElement('button');
+      delBtn.innerHTML = `<img src="/v3/images/task/icon-task-delete.png" />`;
+      delBtn.onclick = () => {
+        deleteTask(dateKey, task.id).then(refresh);
+      };
+
+      row.append(checkbox, label, delBtn);
+      taskList.appendChild(row);
     });
   }
 
-  async function openReorderMode() {
-    const list = await getTasksForDate(TODAY_KEY);
-    reorderSheet.classList.remove('hidden');
-    reorderSheet.innerHTML = `
-      <div class="reorder-list"></div>
-      <button class="accent" id="reorder-done">Done</button>
-    `;
-    const listEl = reorderSheet.querySelector('.reorder-list');
-    list.forEach(task => {
-      const row = document.createElement('div');
-      row.className = 'frosted-card';
-      row.setAttribute('data-id', task.id);
-      row.textContent = task.title;
-      listEl.appendChild(row);
-    });
-
-    let dragging = null;
-    listEl.querySelectorAll('.frosted-card').forEach(el => {
-      el.draggable = true;
-      el.addEventListener('dragstart', () => dragging = el);
-      el.addEventListener('dragover', (e) => {
-        e.preventDefault();
-        const target = e.currentTarget;
-        if (dragging && target !== dragging) {
-          listEl.insertBefore(dragging, target);
-        }
-      });
-    });
-
-    reorderSheet.querySelector('#reorder-done').addEventListener('click', async () => {
-      const newOrder = Array.from(listEl.children).map(el => el.getAttribute('data-id'));
-      await reorderTasks(TODAY_KEY, newOrder);
-      reorderSheet.classList.add('hidden');
+  function refresh() {
+    getTasksForDate(dateKey).then(t => {
+      tasks = t;
       renderTasks();
     });
   }
 
-  async function openImportMode() {
-    importSheet.classList.remove('hidden');
-    importSheet.innerHTML = `
-      <textarea id="import-input" rows="6" placeholder="Paste your task list here..."></textarea>
-      <button class="accent" id="preview-import">Preview</button>
-    `;
+  topBar.appendChild(inputRow);
+  topBar.appendChild(toolsBtn);
+  container.appendChild(topBar);
+  container.appendChild(toolsMenu);
+  container.appendChild(taskList);
 
-    const inputEl = importSheet.querySelector('#import-input');
-    const previewBtn = importSheet.querySelector('#preview-import');
+  rootEl.innerHTML = '';
+  rootEl.appendChild(container);
 
-    previewBtn.addEventListener('click', () => {
-      const lines = inputEl.value.split('\n').map(l => l.trim()).filter(Boolean);
-      importSheet.innerHTML = `<form id="confirm-import-form"></form>`;
-      const form = importSheet.querySelector('#confirm-import-form');
-      lines.forEach((line, idx) => {
-        form.innerHTML += `
-          <div class="frosted-card">
-            <input type="checkbox" checked id="line-${idx}" />
-            <input type="text" value="${line}" id="text-${idx}" />
-          </div>
-        `;
-      });
-      form.innerHTML += `<button type="submit" class="accent">Import Selected</button>`;
-      form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        for (let i = 0; i < lines.length; i++) {
-          const include = form.querySelector(`#line-${i}`).checked;
-          const text = form.querySelector(`#text-${i}`).value.trim();
-          if (include && text) {
-            await addTask(TODAY_KEY, text);
-          }
-        }
-        importSheet.classList.add('hidden');
-        renderTasks();
-      });
-    });
-  }
-
-  renderTasks();
+  refresh();
 }
