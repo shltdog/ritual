@@ -1,77 +1,88 @@
 // score.js
 
-import {
-  getTasksForDate,
-  POINTS_PER_TASK,
-  LEVELS
-} from './store.js';
+import { getTasksForDate, POINTS_PER_TASK, LEVELS } from './store.js';
 
-export async function renderScore(rootEl) {
-  rootEl.innerHTML = `
-    <div id="score-card" class="frosted-card" style="text-align:center;">
-      <div style="position: relative; display: inline-block; margin-top: 16px;">
-        <img src="/v3/images/level-frame-base.png" style="width: 160px; height: 160px;" />
-        <img id="level-icon" src="" style="position:absolute; top:0; left:0; width:160px; height:160px;" />
-      </div>
-      <h2 id="level-name" style="margin: 12px 0 4px 0;"></h2>
-      <div id="xp-total" style="margin-bottom: 12px;"></div>
-      <div style="height: 12px; background: #333; border-radius: 6px; overflow: hidden; margin: 0 24px 16px 24px;">
-        <div id="xp-bar" style="height: 100%; background: var(--accent-color); width: 0%;"></div>
-      </div>
-    </div>
-  `;
-
-  const xpTotal = await calculateTotalXP();
-  const level = getCurrentLevel(xpTotal);
-  const next = getNextLevel(level);
-
-  const levelIcon = rootEl.querySelector('#level-icon');
-  const levelName = rootEl.querySelector('#level-name');
-  const xpDisplay = rootEl.querySelector('#xp-total');
-  const xpBar = rootEl.querySelector('#xp-bar');
-
-  levelIcon.src = level.icon;
-  levelName.textContent = level.name;
-  xpDisplay.textContent = `${xpTotal} XP`;
-
-  if (next) {
-    const range = next.threshold - level.threshold;
-    const intoLevel = xpTotal - level.threshold;
-    const percent = Math.min(100, Math.floor((intoLevel / range) * 100));
-    xpBar.style.width = `${percent}%`;
-  } else {
-    xpBar.style.width = '100%';
+function calculateTotalXP(tasksByDate) {
+  let total = 0;
+  for (const dateKey in tasksByDate) {
+    const tasks = tasksByDate[dateKey];
+    total += tasks.filter(t => t.done).length * POINTS_PER_TASK;
   }
+  return total;
 }
 
-async function calculateTotalXP() {
-  let xp = 0;
-  const today = new Date().toISOString().slice(0, 10);
-  const daysBack = 365;
-  for (let i = 0; i < daysBack; i++) {
-    const date = new Date();
-    date.setDate(date.getDate() - i);
-    const key = date.toISOString().slice(0, 10);
-    const tasks = await getTasksForDate(key);
-    const completed = tasks.filter(t => t.done).length;
-    xp += completed * POINTS_PER_TASK;
+function getLevel(xp) {
+  let levelIndex = 0;
+  for (let i = 0; i < LEVELS.length; i++) {
+    if (xp >= LEVELS[i].threshold) {
+      levelIndex = i;
+    } else {
+      break;
+    }
   }
-  return xp;
+  return LEVELS[levelIndex];
 }
 
-function getCurrentLevel(xp) {
-  let current = LEVELS[0];
-  for (const level of LEVELS) {
-    if (xp >= level.threshold) current = level;
-    else break;
-  }
-  return {
-    ...current,
-    icon: `/v3/images/level/level-${LEVELS.indexOf(current) + 1}.png`
-  };
+function renderScore(rootEl) {
+  rootEl.innerHTML = '';
+
+  getTasksForDate('*').then(tasksByDate => {
+    const xp = calculateTotalXP(tasksByDate);
+    const level = getLevel(xp);
+    const nextLevel = LEVELS[Math.min(LEVELS.indexOf(level) + 1, LEVELS.length - 1)];
+    const xpToNext = nextLevel.threshold - xp;
+    const progress = Math.min(100, Math.round((xp / nextLevel.threshold) * 100));
+
+    const wrapper = document.createElement('div');
+    wrapper.className = 'score-screen frost-card';
+
+    const frame = document.createElement('img');
+    frame.src = 'images/level-frame-base.png';
+    frame.alt = 'Level Frame';
+    frame.style.width = '100px';
+    frame.style.display = 'block';
+    frame.style.margin = '0 auto';
+
+    const levelIcon = document.createElement('img');
+    levelIcon.src = `images/level-${LEVELS.indexOf(level) + 1}.png`;
+    levelIcon.alt = level.name;
+    levelIcon.style.width = '80px';
+    levelIcon.style.margin = '-80px auto 0';
+    levelIcon.style.display = 'block';
+    levelIcon.style.position = 'relative';
+    levelIcon.style.zIndex = '2';
+
+    const levelName = document.createElement('h2');
+    levelName.textContent = `${level.name}`;
+    levelName.style.textAlign = 'center';
+
+    const xpLine = document.createElement('p');
+    xpLine.textContent = `Total XP: ${xp}`;
+    xpLine.style.textAlign = 'center';
+
+    const progressBar = document.createElement('div');
+    progressBar.style.height = '10px';
+    progressBar.style.width = '100%';
+    progressBar.style.background = '#333';
+    progressBar.style.borderRadius = '6px';
+    progressBar.style.marginTop = '1rem';
+
+    const progressFill = document.createElement('div');
+    progressFill.style.width = `${progress}%`;
+    progressFill.style.height = '100%';
+    progressFill.style.background = 'var(--accent)';
+    progressFill.style.borderRadius = '6px';
+
+    progressBar.appendChild(progressFill);
+
+    wrapper.appendChild(frame);
+    wrapper.appendChild(levelIcon);
+    wrapper.appendChild(levelName);
+    wrapper.appendChild(xpLine);
+    wrapper.appendChild(progressBar);
+
+    rootEl.appendChild(wrapper);
+  });
 }
 
-function getNextLevel(currentLevel) {
-  const idx = LEVELS.indexOf(currentLevel);
-  return LEVELS[idx + 1] || null;
-}
+export { renderScore };
