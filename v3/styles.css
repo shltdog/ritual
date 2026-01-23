@@ -1,3 +1,21 @@
+/* DEBUG VISUALS — REMOVE AFTER CONFIRMING */
+body {
+  border: 10px solid lime;
+}
+
+#app::before {
+  content: 'CSS LOADED ✅';
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  background: lime;
+  color: black;
+  padding: 6px 10px;
+  font-size: 14px;
+  z-index: 9999;
+}
+
+/* === REAL STYLES START HERE === */
 :root {
   --accent-color: #e34242;
   --bg-dark: rgba(15, 15, 15, 0.85);
