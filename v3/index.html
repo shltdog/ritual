@@ -3,25 +3,57 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <meta name="theme-color" content="#111111" />
-  <link rel="icon" href="./images/app-icon.png.png" />
-  <link rel="apple-touch-icon" href="./images/app-icon.png.png" />
-  <link rel="stylesheet" href="./styles.css" />
-  <title>🧪 Ritual V3 Test</title>
+  <meta name="theme-color" content="#0d0d0d" />
+  <link rel="icon" href="/v3/images/app-icon.png" />
+  <link rel="apple-touch-icon" href="/v3/images/app-icon.png" />
+  <title>Ritual</title>
+
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      background-color: #0d0d0d;
+      color: #eeeeee;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      touch-action: manipulation;
+      overscroll-behavior: none;
+    }
+
+    body {
+      background-image: url('/v3/images/background-main.png');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      overflow: hidden;
+    }
+
+    #app {
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+  </style>
 </head>
-<body style="background: #111; color: #eee;">
-  <div id="app">
-    <h1 style="text-align:center;padding:2rem;">🧪 Ritual V3 Test</h1>
-    <p style="text-align:center;">If you see this, index.html and styles are loading.</p>
-  </div>
-  <script type="module">
-    import('./main.js').catch(err => {
-      const errorBox = document.createElement('pre');
-      errorBox.style.color = 'red';
-      errorBox.style.padding = '1rem';
-      errorBox.textContent = 'JS Error: ' + err.message;
-      document.body.appendChild(errorBox);
-    });
-  </script>
+
+<body>
+  <div id="app"></div>
+
+  <script src="/v3/app.js" type="module"></script>
+  <script src="/v3/router.js" type="module"></script>
+  <script src="/v3/store.js" type="module"></script>
+  <script src="/v3/calendar.js" type="module"></script>
+  <script src="/v3/settings.js" type="module"></script>
+  <script src="/v3/templates.js" type="module"></script>
+  <script src="/v3/today.js" type="module"></script>
+  <script src="/v3/score.js" type="module"></script>
+  <script src="/v3/db.js" type="module"></script>
+  <script src="/v3/styles.css" type="text/css"></script>
+  <script src="/v3/main.js" type="module"></script>
 </body>
 </html>
