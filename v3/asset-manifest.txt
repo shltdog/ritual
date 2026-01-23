@@ -1,0 +1,34 @@
+# Ritual v3 Asset Manifest
+# Reference only — not parsed by runtime
+
+/v3/images/app-icon.png.png
+/v3/images/background-main.png.png
+/v3/images/level-frame-base.png.png
+
+/v3/images/icon/
+icon-backup-cloud.png.png
+icon-close-cancel.png.png
+icon-confirm-check.png.png
+icon-import-export.png.png
+icon-overflow-more.png.png
+
+/v3/images/level/
+level-1.png.PNG
+level-2.png.png
+level-3.png.png
+level-4.png.png
+level-5.png.png
+
+/v3/images/tab/
+tab-calendar.png.png
+tab-score.png.png
+tab-score-flame.png.png
+tab-settings.png.png
+
+/v3/images/task/
+icon-task-add.png.png
+icon-task-complete.png.png
+icon-task-delete.png.png
+icon-task-edit.png.png
+icon-task-incomplete.png.png
+icon-task-reorder.png.png
