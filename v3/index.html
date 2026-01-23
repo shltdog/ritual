@@ -10,8 +10,19 @@
   <link rel="stylesheet" href="/v3/styles.css" />
   <title>Ritual (V3)</title>
 </head>
-<body>
-  <div id="app"></div>
-  <script type="module" src="/v3/main.js"></script>
+<body style="background: #111; color: #eee;">
+  <div id="app">
+    <h1 style="text-align:center;padding:2rem;">🧪 Ritual V3 Test</h1>
+    <p style="text-align:center;">If you see this, index.html and styles are loading.</p>
+  </div>
+  <script type="module">
+    import('/v3/main.js').catch(err => {
+      const errorBox = document.createElement('pre');
+      errorBox.style.color = 'red';
+      errorBox.style.padding = '1rem';
+      errorBox.textContent = 'JS Error: ' + err.message;
+      document.body.appendChild(errorBox);
+    });
+  </script>
 </body>
 </html>
