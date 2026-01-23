@@ -6,54 +6,22 @@
   <meta name="theme-color" content="#0d0d0d" />
   <link rel="icon" href="/v3/images/app-icon.png" />
   <link rel="apple-touch-icon" href="/v3/images/app-icon.png" />
+  <link rel="stylesheet" href="/v3/styles.css" />
   <title>Ritual</title>
-
-  <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      width: 100%;
-      height: 100%;
-      background-color: #0d0d0d;
-      color: #eeeeee;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
-      touch-action: manipulation;
-      overscroll-behavior: none;
-    }
-
-    body {
-      background-image: url('/v3/images/background-main.png');
-      background-size: cover;
-      background-position: center;
-      background-attachment: fixed;
-      overflow: hidden;
-    }
-
-    #app {
-      width: 100vw;
-      height: 100vh;
-      display: flex;
-      flex-direction: column;
-      position: relative;
-    }
-  </style>
 </head>
 
 <body>
   <div id="app"></div>
 
-  <script src="/v3/app.js" type="module"></script>
-  <script src="/v3/router.js" type="module"></script>
-  <script src="/v3/store.js" type="module"></script>
-  <script src="/v3/calendar.js" type="module"></script>
-  <script src="/v3/settings.js" type="module"></script>
-  <script src="/v3/templates.js" type="module"></script>
-  <script src="/v3/today.js" type="module"></script>
-  <script src="/v3/score.js" type="module"></script>
-  <script src="/v3/db.js" type="module"></script>
-  <script src="/v3/styles.css" type="text/css"></script>
-  <script src="/v3/main.js" type="module"></script>
+  <script type="module" src="/v3/db.js"></script>
+  <script type="module" src="/v3/store.js"></script>
+  <script type="module" src="/v3/router.js"></script>
+  <script type="module" src="/v3/app.js"></script>
+  <script type="module" src="/v3/today.js"></script>
+  <script type="module" src="/v3/calendar.js"></script>
+  <script type="module" src="/v3/score.js"></script>
+  <script type="module" src="/v3/settings.js"></script>
+  <script type="module" src="/v3/templates.js"></script>
+  <script type="module" src="/v3/main.js"></script>
 </body>
 </html>
