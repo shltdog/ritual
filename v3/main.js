@@ -1,3 +1,5 @@
+// main.js
+
 import { renderToday } from './today.js';
 import { renderCalendar } from './calendar.js';
 import { renderScore } from './score.js';
@@ -115,3 +117,10 @@ window.goToTab = function (tab) {
 // ✅ Init logic
 maybeShowStartOfDayPrompt?.();
 renderActiveTab();
+
+// ✅ Register service worker (if supported)
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/v3/service-worker.js')
+    .then(() => console.log('🧪 Service Worker registered'))
+    .catch(err => console.error('Service Worker registration failed:', err));
+}
