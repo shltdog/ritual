@@ -38,7 +38,7 @@ export async function renderSettings(rootEl) {
     <div class="frosted-card" style="margin-top: 24px;">
       <h3>Backup</h3>
       <button id="export-backup" class="accent">
-        <img src="/v3/images/icon/icon-backup-cloud.png.png" class="icon" /> Export Backup
+        <img src="images/icon-backup-cloud.png" class="icon" /> Export Backup
       </button>
       <input type="file" id="import-backup" accept=".json" style="margin-top: 8px;" />
       <div id="backup-error" style="color: #e55; margin-top: 8px;"></div>
