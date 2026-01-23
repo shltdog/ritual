@@ -1,5 +1,5 @@
 :root {
-  --accent-color: #e34242; /* default red */
+  --accent-color: #e34242;
   --bg-dark: rgba(15, 15, 15, 0.85);
   --bg-glass: rgba(30, 30, 30, 0.4);
   --frosted-border: rgba(255, 255, 255, 0.06);
@@ -30,7 +30,7 @@ body {
   background-attachment: fixed;
 }
 
-/* Root app container */
+/* App container */
 #app {
   display: flex;
   flex-direction: column;
@@ -47,18 +47,18 @@ body {
   -webkit-overflow-scrolling: touch;
 }
 
-/* Generic hidden utility */
+/* Hide utility */
 .hidden {
   display: none !important;
 }
 
-/* Page containers */
+/* Page sections */
 .page {
   display: block;
   min-height: 100%;
 }
 
-/* Frosted card layout */
+/* Card UI */
 .frosted-card {
   background: var(--bg-glass);
   border: 1px solid var(--frosted-border);
@@ -70,7 +70,7 @@ body {
   box-shadow: 0 0 8px rgba(0, 0, 0, 0.3);
 }
 
-/* Icon treatment */
+/* Icon style */
 .icon {
   width: 24px;
   height: 24px;
@@ -78,7 +78,7 @@ body {
   vertical-align: middle;
 }
 
-/* Accent button */
+/* Buttons */
 button.accent,
 input[type="submit"].accent {
   background-color: var(--accent-color);
@@ -122,7 +122,7 @@ select:focus {
   border-color: var(--accent-color);
 }
 
-/* Tab bar */
+/* Fixed tab bar */
 .tab-bar {
   position: fixed;
   bottom: 0;
@@ -157,7 +157,7 @@ select:focus {
   color: var(--accent-color);
 }
 
-/* Task list */
+/* Task styling */
 .task-row {
   display: flex;
   justify-content: space-between;
@@ -176,7 +176,7 @@ select:focus {
   text-decoration: line-through;
 }
 
-/* Task actions */
+/* Action buttons on task row */
 .task-row .actions {
   display: flex;
   gap: 8px;
@@ -188,12 +188,12 @@ select:focus {
   padding: 4px;
 }
 
-/* Progress bar (score view) */
+/* XP bar styling (Score tab) */
 #xp-bar {
   transition: width 0.3s ease;
 }
 
-/* Accent utility */
+/* Utility accent class */
 .accent {
   color: var(--accent-color);
 }
