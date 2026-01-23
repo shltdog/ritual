@@ -37,7 +37,53 @@
   </style>
 </head>
 <body>
-  <div id="app"></div>
+  <div id="app">
+
+    <div class="main-content">
+
+      <!-- TODAY TAB -->
+      <div id="today" class="page">
+        <!-- Content will be injected by today.js -->
+      </div>
+
+      <!-- CALENDAR TAB -->
+      <div id="calendar" class="page hidden">
+        <!-- Content will be injected by calendar.js -->
+      </div>
+
+      <!-- SCORE TAB -->
+      <div id="score" class="page hidden">
+        <!-- Content will be injected by score.js -->
+      </div>
+
+      <!-- SETTINGS TAB -->
+      <div id="settings" class="page hidden">
+        <!-- Content will be injected by settings.js -->
+      </div>
+
+    </div>
+
+    <div class="tab-bar">
+      <div class="tab-item active" data-tab="today">
+        <img src="/v3/images/tab/tab-calendar.png" class="icon" />
+        <div>Today</div>
+      </div>
+      <div class="tab-item" data-tab="calendar">
+        <img src="/v3/images/tab/tab-calendar.png" class="icon" />
+        <div>Calendar</div>
+      </div>
+      <div class="tab-item" data-tab="score">
+        <img src="/v3/images/tab/tab-score-flame.png" class="icon" />
+        <div>Score</div>
+      </div>
+      <div class="tab-item" data-tab="settings">
+        <img src="/v3/images/tab/tab-settings.png" class="icon" />
+        <div>Settings</div>
+      </div>
+    </div>
+
+  </div>
+
   <script type="module" src="/v3/main.js"></script>
 </body>
 </html>
