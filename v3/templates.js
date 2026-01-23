@@ -127,7 +127,7 @@ export async function maybeShowStartOfDayPrompt() {
     <div style="display:flex; justify-content:space-between; align-items:center;">
       <h3>Start Today</h3>
       <button id="close-start-day">
-        <img src="/v3/images/icon/icon-close-cancel.png.png" class="icon" />
+        <img src="images/icon-close-cancel.png.png" class="icon" />
       </button>
     </div>
     ${recurringTemplates.length > 0 ? '<h4>Recurring</h4>' : ''}
@@ -136,10 +136,10 @@ export async function maybeShowStartOfDayPrompt() {
     <div id="yesterday-section"></div>
     <div style="margin-top: 16px;">
       <button class="accent" id="add-selected">
-        <img src="/v3/images/icon/icon-confirm-check.png.png" class="icon" /> Add Selected
+        <img src="images/icon-confirm-check.png.png" class="icon" /> Add Selected
       </button>
       <button id="skip-selected" style="margin-left: 12px;">
-        <img src="/v3/images/icon/icon-overflow-more.png.png" class="icon" /> Skip
+        <img src="images/icon-overflow-more.png.png" class="icon" /> Skip
       </button>
     </div>
   `;
