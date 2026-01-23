@@ -6,9 +6,11 @@
   <meta name="theme-color" content="#0d0d0d" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
   <link rel="manifest" href="/v3/manifest.webmanifest" />
   <link rel="icon" href="/v3/images/icon/icon-192.png" />
   <link rel="apple-touch-icon" href="/v3/images/icon/icon-192.png" />
+
   <title>Ritual</title>
 
   <style>
@@ -42,6 +44,7 @@
       color: red;
       font-family: monospace;
       padding: 1rem;
+      white-space: pre-wrap;
     }
   </style>
 </head>
@@ -49,10 +52,12 @@
   <div id="app"></div>
   <pre id="error"></pre>
 
+  <!-- App Entry -->
   <script type="module">
     import '/v3/main.js';
   </script>
 
+  <!-- Global Error Handling -->
   <script>
     window.addEventListener('error', e => {
       const errBox = document.getElementById('error');
@@ -63,6 +68,22 @@
       const errBox = document.getElementById('error');
       errBox.textContent = 'Promise Error: ' + e.reason;
     });
+  </script>
+
+  <!-- ✅ STEP 4: Service Worker Registration -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker
+          .register('/v3/service-worker.js')
+          .then(reg => {
+            console.log('✅ Service Worker registered:', reg.scope);
+          })
+          .catch(err => {
+            console.warn('⚠️ Service Worker registration failed:', err);
+          });
+      });
+    }
   </script>
 </body>
 </html>
