@@ -35,6 +35,29 @@ function updateTabUI() {
     const tabBtn = document.querySelector(`.tab-item[data-tab="${tab}"]`);
     if (page) page.classList.toggle('hidden', idx !== activeTabIndex);
     if (tabBtn) tabBtn.classList.toggle('active', idx === activeTabIndex);
+
+    // Update image source based on active tab
+    if (tabBtn) {
+      const img = tabBtn.querySelector('img');
+      if (img) {
+        let src = '';
+        switch (tab) {
+          case 'today':
+            src = 'images/tab/tab-calendar.png';
+            break;
+          case 'calendar':
+            src = 'images/tab/tab-calendar.png';
+            break;
+          case 'score':
+            src = 'images/tab/tab-score.png';
+            break;
+          case 'settings':
+            src = 'images/tab/tab-settings.png';
+            break;
+        }
+        img.src = src;
+      }
+    }
   });
 }
 
