@@ -11,17 +11,33 @@
 </head>
 
 <body>
-  <div id="app"></div>
+  <div id="app">
+    <div id="load-status" style="padding:1rem;text-align:center;color:#aaa;">🧪 Loading modules...</div>
+  </div>
 
-  <script type="module" src="/v3/db.js"></script>
-  <script type="module" src="/v3/store.js"></script>
-  <script type="module" src="/v3/router.js"></script>
-  <script type="module" src="/v3/app.js"></script>
-  <script type="module" src="/v3/today.js"></script>
-  <script type="module" src="/v3/calendar.js"></script>
-  <script type="module" src="/v3/score.js"></script>
-  <script type="module" src="/v3/settings.js"></script>
-  <script type="module" src="/v3/templates.js"></script>
-  <script type="module" src="/v3/main.js"></script>
+  <script type="module">
+    const fail = (label, err) => {
+      document.getElementById("load-status").innerHTML =
+        `<div style="color:#ff5e5e;font-family:monospace;">❌ Failed: ${label}<br><br><code>${err.message}</code></div>`;
+    };
+
+    try {
+      await import('./db.js');
+      await import('./store.js');
+      await import('./router.js');
+      await import('./app.js');
+      await import('./today.js');
+      await import('./calendar.js');
+      await import('./score.js');
+      await import('./settings.js');
+      await import('./templates.js');
+      await import('./main.js');
+
+      document.getElementById("load-status").innerHTML =
+        `<div style="color:#90ee90;">✅ All modules loaded successfully</div>`;
+    } catch (err) {
+      fail("main bundle", err);
+    }
+  </script>
 </body>
 </html>
