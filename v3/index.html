@@ -3,11 +3,14 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <meta name="theme-color" content="#111111" />
-  <link rel="icon" href="images/app-icon.png" />
-  <link rel="apple-touch-icon" href="images/app-icon.png" />
-  <link rel="manifest" href="manifest.webmanifest" />
-  <title>🧪 Ritual V3 Test</title>
+  <meta name="theme-color" content="#0d0d0d" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <link rel="manifest" href="/v3/manifest.webmanifest" />
+  <link rel="icon" href="/v3/images/icon/icon-192.png" />
+  <link rel="apple-touch-icon" href="/v3/images/icon/icon-192.png" />
+  <title>Ritual</title>
+
   <style>
     html, body {
       margin: 0;
@@ -21,7 +24,7 @@
     }
 
     body {
-      background-image: url('images/background-main.png');
+      background-image: url('/v3/images/background-main.png');
       background-size: cover;
       background-position: center;
       background-attachment: fixed;
@@ -43,14 +46,13 @@
   </style>
 </head>
 <body>
-  <div id="app">
-    <h1 style="padding: 1rem;">🧪 Ritual V3 Test</h1>
-    <p style="padding: 0 1rem;">If you see this, index.html and styles are loading.</p>
-    <pre id="error"></pre>
-  </div>
+  <div id="app"></div>
+  <pre id="error"></pre>
+
   <script type="module">
-    import './main.js'
+    import '/v3/main.js';
   </script>
+
   <script>
     window.addEventListener('error', e => {
       const errBox = document.getElementById('error');
