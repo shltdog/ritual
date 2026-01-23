@@ -19,10 +19,8 @@
       padding: 0;
       background-color: #0d0d0d;
       color: #eee;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
       touch-action: manipulation;
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
     }
 
     body {
@@ -40,37 +38,109 @@
       flex-direction: column;
     }
 
-    #error {
-      color: red;
+    /* 🔴 MASTER DEBUG PANEL */
+    #debug-panel {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      max-height: 45vh;
+      overflow-y: auto;
+      background: rgba(0, 0, 0, 0.92);
+      color: #ff6b6b;
       font-family: monospace;
-      padding: 1rem;
+      font-size: 12px;
+      padding: 10px;
+      border-top: 1px solid #333;
+      z-index: 999999;
+      display: none;
       white-space: pre-wrap;
+    }
+
+    #debug-panel.active {
+      display: block;
+    }
+
+    #debug-toggle {
+      position: fixed;
+      bottom: 10px;
+      right: 10px;
+      background: #111;
+      color: #0f0;
+      font-size: 11px;
+      padding: 6px 8px;
+      border-radius: 6px;
+      border: 1px solid #333;
+      z-index: 1000000;
+      opacity: 0.7;
     }
   </style>
 </head>
 <body>
   <div id="app"></div>
-  <pre id="error"></pre>
 
-  <!-- App Entry -->
-  <script type="module">
-    import '/v3/main.js';
-  </script>
+  <!-- 🔴 MASTER DEBUG OUTPUT -->
+  <div id="debug-panel"></div>
+  <div id="debug-toggle">DEBUG</div>
 
-  <!-- Global Error Handling -->
+  <!-- 🔴 MASTER DEBUG SYSTEM -->
   <script>
+    const debugPanel = document.getElementById('debug-panel');
+    const toggle = document.getElementById('debug-toggle');
+
+    toggle.onclick = () => {
+      debugPanel.classList.toggle('active');
+    };
+
+    function logDebug(type, msg, extra = '') {
+      const time = new Date().toLocaleTimeString();
+      debugPanel.textContent += `[${time}] ${type}: ${msg}\n${extra}\n\n`;
+      debugPanel.classList.add('active');
+    }
+
+    // Capture JS errors
     window.addEventListener('error', e => {
-      const errBox = document.getElementById('error');
-      errBox.textContent = 'JS Error: ' + e.message;
+      logDebug('JS ERROR', e.message, e.filename + ':' + e.lineno);
     });
 
+    // Capture async promise errors
     window.addEventListener('unhandledrejection', e => {
-      const errBox = document.getElementById('error');
-      errBox.textContent = 'Promise Error: ' + e.reason;
+      logDebug('PROMISE ERROR', String(e.reason));
     });
+
+    // Capture console errors
+    const origError = console.error;
+    const origWarn = console.warn;
+
+    console.error = (...args) => {
+      logDebug('console.error', args.join(' '));
+      origError.apply(console, args);
+    };
+
+    console.warn = (...args) => {
+      logDebug('console.warn', args.join(' '));
+      origWarn.apply(console, args);
+    };
+
+    logDebug('BOOT', 'index.html loaded');
   </script>
 
-  <!-- ✅ STEP 4: Service Worker Registration -->
+  <!-- ✅ APP ENTRY -->
+  <script type="module">
+    try {
+      import('/v3/main.js')
+        .then(() => {
+          console.log('✅ main.js loaded');
+        })
+        .catch(err => {
+          console.error('Failed to load main.js', err);
+        });
+    } catch (err) {
+      console.error('Module init failure', err);
+    }
+  </script>
+
+  <!-- ✅ SERVICE WORKER REGISTRATION -->
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
@@ -80,9 +150,11 @@
             console.log('✅ Service Worker registered:', reg.scope);
           })
           .catch(err => {
-            console.warn('⚠️ Service Worker registration failed:', err);
+            console.error('Service Worker registration failed', err);
           });
       });
+    } else {
+      console.warn('Service Worker not supported');
     }
   </script>
 </body>
