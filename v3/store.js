@@ -2,7 +2,6 @@
 
 const DB_NAME = 'ritual_v3';
 const DB_VERSION = 1;
-let db;
 
 const POINTS_PER_TASK = 10;
 
@@ -14,10 +13,11 @@ const LEVELS = [
   { name: 'Legend', threshold: 2000 }
 ];
 
+let db;
+
 function openDB() {
   return new Promise((resolve, reject) => {
     if (db) return resolve(db);
-
     const request = indexedDB.open(DB_NAME, DB_VERSION);
 
     request.onerror = () => reject(request.error);
@@ -27,8 +27,8 @@ function openDB() {
       resolve(db);
     };
 
-    request.onupgradeneeded = (event) => {
-      const db = event.target.result;
+    request.onupgradeneeded = (e) => {
+      const db = e.target.result;
       if (!db.objectStoreNames.contains('tasks')) db.createObjectStore('tasks', { keyPath: 'id' });
       if (!db.objectStoreNames.contains('templates')) db.createObjectStore('templates', { keyPath: 'id' });
       if (!db.objectStoreNames.contains('settings')) db.createObjectStore('settings');
@@ -64,7 +64,7 @@ async function setSettings(settings) {
 
 async function getAccent() {
   const settings = await getSettings();
-  return settings.accent || '#e34242';
+  return settings.accent || '#ff4b4b';
 }
 
 async function setAccent(color) {
@@ -111,7 +111,9 @@ async function getTasksForDate(dateKey) {
     const req = store.getAll();
     req.onsuccess = () => {
       const all = req.result || [];
-      const list = all.filter(t => t.date === dateKey);
+      const list = dateKey === '*'
+        ? all
+        : all.filter(t => t.date === dateKey);
       list.sort((a, b) => {
         if (a.done !== b.done) return a.done ? 1 : -1;
         return (a.order || 0) - (b.order || 0);
@@ -131,10 +133,10 @@ async function addTask(dateKey, title) {
 
 async function updateTaskTitle(id, newTitle) {
   const store = await tx('tasks', 'readwrite');
-  const taskReq = store.get(id);
+  const req = store.get(id);
   return new Promise(resolve => {
-    taskReq.onsuccess = () => {
-      const task = taskReq.result;
+    req.onsuccess = () => {
+      const task = req.result;
       if (task) {
         task.title = newTitle;
         store.put(task);
@@ -151,10 +153,10 @@ async function deleteTask(id) {
 
 async function toggleTaskDone(id) {
   const store = await tx('tasks', 'readwrite');
-  const taskReq = store.get(id);
+  const req = store.get(id);
   return new Promise(resolve => {
-    taskReq.onsuccess = () => {
-      const task = taskReq.result;
+    req.onsuccess = () => {
+      const task = req.result;
       if (task) {
         task.done = !task.done;
         store.put(task);
@@ -166,20 +168,21 @@ async function toggleTaskDone(id) {
 
 async function reorderTasks(dateKey, newOrder) {
   const store = await tx('tasks', 'readwrite');
-  const allReq = store.getAll();
-  allReq.onsuccess = () => {
-    const tasks = allReq.result.filter(t => t.date === dateKey);
-    newOrder.forEach((id, index) => {
-      const task = tasks.find(t => t.id === id);
+  const req = store.getAll();
+  req.onsuccess = () => {
+    const all = req.result || [];
+    const sameDay = all.filter(t => t.date === dateKey);
+    newOrder.forEach((id, i) => {
+      const task = sameDay.find(t => t.id === id);
       if (task) {
-        task.order = index;
+        task.order = i;
         store.put(task);
       }
     });
   };
 }
 
-// RECURRING TEMPLATES
+// TEMPLATES
 
 async function getTemplates() {
   const store = await tx('templates');
@@ -196,14 +199,14 @@ async function addTemplate(template) {
   return id;
 }
 
-async function updateTemplate(id, updatedFields) {
+async function updateTemplate(id, fields) {
   const store = await tx('templates', 'readwrite');
   const req = store.get(id);
   req.onsuccess = () => {
-    const template = req.result;
-    if (template) {
-      Object.assign(template, updatedFields);
-      store.put(template);
+    const t = req.result;
+    if (t) {
+      Object.assign(t, fields);
+      store.put(t);
     }
   };
 }
@@ -221,7 +224,7 @@ async function templatesForDate(dateKey) {
   });
 
   const day = new Date(dateKey).getDay();
-  return templates.filter(t => t.days && t.days.includes(day));
+  return templates.filter(t => t.days?.includes(day));
 }
 
 async function getStartOfDayCandidates(todayKey) {
@@ -240,7 +243,7 @@ async function getStartOfDayCandidates(todayKey) {
   };
 }
 
-// CUSTOM HOLIDAYS
+// HOLIDAYS
 
 async function getCustomHolidays() {
   const store = await tx('holidays');
@@ -274,62 +277,56 @@ async function deleteCustomHoliday(id) {
   store.delete(id);
 }
 
-// BACKUP / IMPORT
+// BACKUP
 
 async function exportBackupJSON() {
   const dbInstance = await openDB();
   const result = {};
-
   const stores = ['tasks', 'templates', 'settings', 'holidays', 'meta', 'debug'];
 
-  await Promise.all(
-    stores.map(storeName => {
-      return new Promise(resolve => {
-        const store = dbInstance.transaction(storeName).objectStore(storeName);
-        const req = store.getAll();
-        req.onsuccess = () => {
-          result[storeName] = req.result;
-          resolve();
-        };
-        req.onerror = () => {
-          result[storeName] = [];
-          resolve();
-        };
-      });
-    })
-  );
+  await Promise.all(stores.map(name => {
+    return new Promise(resolve => {
+      const store = dbInstance.transaction(name).objectStore(name);
+      const req = store.getAll();
+      req.onsuccess = () => {
+        result[name] = req.result || [];
+        resolve();
+      };
+      req.onerror = () => {
+        result[name] = [];
+        resolve();
+      };
+    });
+  }));
 
   return JSON.stringify(result, null, 2);
 }
 
 async function importBackupJSON(json) {
-  let data;
-  try {
-    data = typeof json === 'string' ? JSON.parse(json) : json;
-    if (typeof data !== 'object') throw new Error();
-  } catch {
-    throw new Error('Invalid backup file');
-  }
+  const data = typeof json === 'string' ? JSON.parse(json) : json;
+  if (typeof data !== 'object') throw new Error('Invalid backup file');
 
   const dbInstance = await openDB();
   const stores = ['tasks', 'templates', 'settings', 'holidays', 'meta', 'debug'];
 
-  await Promise.all(
-    stores.map(storeName => {
-      return new Promise(resolve => {
-        const tx = dbInstance.transaction(storeName, 'readwrite');
-        const store = tx.objectStore(storeName);
-        store.clear().onsuccess = () => {
-          const entries = data[storeName] || [];
-          entries.forEach(entry => store.put(entry));
-          resolve();
-        };
-      });
-    })
-  );
+  await Promise.all(stores.map(name => {
+    return new Promise(resolve => {
+      const tx = dbInstance.transaction(name, 'readwrite');
+      const store = tx.objectStore(name);
+      store.clear().onsuccess = () => {
+        const entries = data[name] || [];
+        entries.forEach(entry => store.put(entry));
+        resolve();
+      };
+    });
+  }));
 }
 
+// EXPORT
+
 export {
+  DB_NAME,
+  DB_VERSION,
   POINTS_PER_TASK,
   LEVELS,
   getSettings,
