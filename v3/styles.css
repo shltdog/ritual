@@ -35,10 +35,33 @@ html, body {
   overflow: hidden;
 }
 
-.main-content {
+#screen {
   flex: 1;
   overflow-y: auto;
-  padding-bottom: 64px; /* tab bar height */
+  padding-bottom: 64px;
+}
+
+.frosted-card {
+  background: var(--frosted-glass);
+  backdrop-filter: blur(12px);
+  border-radius: 12px;
+  padding: 12px;
+  margin: 12px;
+  color: var(--text-color);
+}
+
+.accent {
+  background: var(--accent-color);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.hidden {
+  display: none !important;
 }
 
 /* Tab Bar */
@@ -56,17 +79,21 @@ html, body {
   z-index: 999;
 }
 
-.tab {
+.tab-item {
   flex: 1;
   text-align: center;
   padding: 6px 0;
-  color: var(--text-color);
-  font-size: 12px;
+  font-size: 11px;
+  color: #888;
 }
 
-.tab img {
+.tab-item.active {
+  color: var(--accent-color);
+}
+
+.tab-item img {
   display: block;
-  margin: 0 auto 2px;
+  margin: 0 auto 4px;
   width: 24px;
   height: 24px;
 }
@@ -179,6 +206,71 @@ html, body {
 .tools-menu button img {
   width: 16px;
   height: 16px;
+}
+
+/* Calendar */
+.calendar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  font-weight: bold;
+  font-size: 18px;
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  padding: 0 12px 12px;
+}
+
+.calendar-day {
+  background: var(--frosted-glass);
+  text-align: center;
+  padding: 6px 4px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.calendar-day span {
+  display: block;
+  margin-bottom: 4px;
+}
+
+/* Day sheet override */
+#day-sheet {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  max-height: 90vh;
+  overflow-y: auto;
+  background: var(--frosted-glass);
+  padding: 16px;
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+  z-index: 9999;
+}
+
+/* Score tab */
+.score-screen {
+  padding: 24px;
+  text-align: center;
+}
+
+.score-screen h2 {
+  margin-top: 8px;
+  font-size: 22px;
+}
+
+.score-screen p {
+  font-size: 14px;
+}
+
+.score-screen img {
+  max-width: 140px;
 }
 
 /* Debug tag */
