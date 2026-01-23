@@ -4,39 +4,51 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="theme-color" content="#0d0d0d" />
+  <title>Ritual V3</title>
   <link rel="icon" href="/v3/images/app-icon.png" />
   <link rel="apple-touch-icon" href="/v3/images/app-icon.png" />
+  <link rel="manifest" href="/v3/manifest.webmanifest" />
   <link rel="stylesheet" href="/v3/styles.css" />
-  <title>Ritual</title>
 </head>
-
 <body>
   <div id="app">
-    <div id="load-status" style="padding:1rem;text-align:center;color:#aaa;">🧪 Loading modules...</div>
+    <div class="debug-tag">🧪 Loading Ritual...</div>
+    <div class="main-content" id="main-content"></div>
+    <div class="tab-bar">
+      <div class="tab" data-tab="today">
+        <img src="/v3/images/tab/tab-today.png" alt="Today" />
+        <div>Today</div>
+      </div>
+      <div class="tab" data-tab="calendar">
+        <img src="/v3/images/tab/tab-calendar.png" alt="Calendar" />
+        <div>Calendar</div>
+      </div>
+      <div class="tab" data-tab="score">
+        <img src="/v3/images/tab/tab-score.png" alt="Score" />
+        <div>Score</div>
+      </div>
+      <div class="tab" data-tab="settings">
+        <img src="/v3/images/tab/tab-settings.png" alt="Settings" />
+        <div>Settings</div>
+      </div>
+    </div>
   </div>
-
   <script type="module">
-    const fail = (label, err) => {
-      document.getElementById("load-status").innerHTML =
-        `<div style="color:#ff5e5e;font-family:monospace;">❌ Failed: ${label}<br><br><code>${err.message}</code></div>`;
-    };
-
     try {
-      await import('./db.js');
-      await import('./store.js');
-      await import('./router.js');
-      await import('./app.js');
-      await import('./today.js');
-      await import('./calendar.js');
-      await import('./score.js');
-      await import('./settings.js');
-      await import('./templates.js');
-      await import('./main.js');
-
-      document.getElementById("load-status").innerHTML =
-        `<div style="color:#90ee90;">✅ All modules loaded successfully</div>`;
-    } catch (err) {
-      fail("main bundle", err);
+      const el = document.querySelector('.debug-tag');
+      el.textContent = '🧪 Initializing app...';
+      import('/v3/main.js').then(() => {
+        el.textContent = '🧪 App loaded ✅';
+        setTimeout(() => el.remove(), 1200);
+      }).catch(err => {
+        console.error('JS load error:', err);
+        el.textContent = '🧪 JS Error: ' + err.message;
+        el.style.color = 'red';
+      });
+    } catch (e) {
+      const el = document.querySelector('.debug-tag');
+      el.textContent = '🧪 Critical error: ' + e.message;
+      el.style.color = 'red';
     }
   </script>
 </body>
